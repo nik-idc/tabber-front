@@ -1,0 +1,18 @@
+<div class="user-class">
+
+	<h4>Select tab to edit:</h4>
+	<mat-form-field appearance="fill">
+		<mat-label>Select tab:</mat-label>
+		<mat-select>
+			<mat-option
+				*ngFor="let tab of user.tabs"
+				[value]="tab.name"
+				(onSelectionChange)="onTabSelected(tab)">
+				{{tab.name}}
+			</mat-option>
+		</mat-select>
+	</mat-form-field>
+
+	<app-tab [tab]="selectedTab"></app-tab>
+
+</div>

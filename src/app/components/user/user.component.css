@@ -1,0 +1,15 @@
+.user-class {
+	text-align: center;
+}
+
+.user-info {
+	width: 20%;
+	background-color: #7b8d96;
+	display: inline-block;
+}
+
+.user-data {
+	width: 80%;
+	background-color: #d7ecf7;
+	display: inline-block;
+}

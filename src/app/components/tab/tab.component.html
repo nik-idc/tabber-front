@@ -1,0 +1,106 @@
+<div class="tab-info">
+
+	<form [formGroup]="tabInfoForm" (ngSubmit)="onSaveChangesClick()">
+
+		<div class="form-group">
+			<mat-form-field appearance="fill">
+				<mat-label>Artist:</mat-label>
+				<input matInput formControlName="artist" type="text" class="form-control" [(ngModel)]="tabWindow.tab.artist">
+			</mat-form-field>
+		</div>
+	
+		<div class="form-group">
+			<mat-form-field appearance="fill">
+				<mat-label>Song:</mat-label>
+				<input matInput formControlName="song" type="text" class="form-control" [(ngModel)]="tabWindow.tab.song">
+			</mat-form-field>
+		</div>
+
+		<div class="form-group">
+			<button mat-stroked-button type="submit">Save Changes</button>
+		</div>
+
+	</form>
+
+</div>
+
+<div *ngIf="tabWindow"
+	class="tab-div"
+	tabindex="0"
+	(focusout)="onTabFocusOut()"
+	(keydown.control.delete)="onTabCtrlDel()"
+	(keydown)="onTabKeyDown($event)">
+
+	<svg *ngFor="let barsLine of tabWindow.barsLines;"
+		[attr.width]="tabWindow.dim.svgLineWidth"
+		[attr.height]="tabWindow.dim.svgLineHeight"
+		class="tab-svg">
+		
+		<g [attr.transform]="'translate(' + tabWindow.dim.xOffset + ',' + tabWindow.dim.yOffset + ')'">
+
+			<path [attr.d]="tabWindow.linesPath" stroke="black"/>
+
+			<!-- [attr.transform]="'translate(' + tabWindow.barElements[barId].rect.x + ',0)'" -->
+			<g *ngFor="let barId of barsLine;">
+			
+				<rect
+					[attr.x]="tabWindow.barElements[barId].rect.x"
+					[attr.y]="tabWindow.barElements[barId].rect.y"
+					[attr.width]="tabWindow.barElements[barId].rect.width"
+					[attr.height]="tabWindow.barElements[barId].rect.height"
+					[attr.class]="tabWindow.barElements[barId].durationsFit ? 'tab-bar' : 'tab-bar-dur-mismatch'"/>
+
+				<!-- [attr.transform]="'translate(' + tabWindow.barElements[barId].rect.x + ',0)'" -->
+
+				<rect
+					[attr.x]="tabWindow.barElements[barId].prependRect.x"
+					[attr.y]="tabWindow.barElements[barId].prependRect.y"
+					[attr.width]="tabWindow.barElements[barId].prependRect.width"
+					[attr.height]="tabWindow.barElements[barId].prependRect.height"
+					(click)="onPrependChordClick(tabWindow.barElements[barId])"
+					class="prepend-bar-rect"/>
+
+				<g *ngFor="let chordElement of tabWindow.barElements[barId].chordElements; let chordElementId = index">
+
+					<g *ngFor="let noteElement of chordElement.noteElements; let noteElementId = index"
+						(click)="onNoteClick(noteElement)">
+
+						<rect
+							[attr.x]="noteElement.rect.x"
+							[attr.y]="noteElement.rect.y"
+							[attr.width]="noteElement.rect.width"
+							[attr.height]="noteElement.rect.height"
+							class="note-add-rect"/>
+
+						<text *ngIf="noteElement == tabWindow.selectedNoteElement"
+							[attr.x]="noteElement.textCoords.x"
+							[attr.y]="noteElement.textCoords.y"
+							class="note-text-selected">
+							{{noteElement.note.fret ? '|' + noteElement.note.fret + '|' : '|-|'}}
+						</text>
+
+						<text *ngIf="noteElement != tabWindow.selectedNoteElement"
+							[attr.x]="noteElement.textCoords.x"
+							[attr.y]="noteElement.textCoords.y"
+							class="note-text">
+							{{noteElement.note.fret}}
+						</text>
+					</g>
+
+				</g>
+
+			<rect
+				[attr.x]="tabWindow.barElements[barId].appendRect.x"
+				[attr.y]="tabWindow.barElements[barId].appendRect.y"
+				[attr.width]="tabWindow.barElements[barId].appendRect.width"
+				[attr.height]="tabWindow.barElements[barId].appendRect.height"
+				(click)="onAppendChordClick(tabWindow.barElements[barId])"
+				class="append-bar-rect"/>
+
+			</g>
+
+		</g>
+
+	</svg>
+
+</div>

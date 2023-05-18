@@ -1,0 +1,151 @@
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Rect } from 'src/app/shared/tab-window/shapes/rect';
+import { TabLineDim } from 'src/app/shared/tab-window/tab-line-dim';
+import { TabWindow } from 'src/app/shared/tab-window/tab-window';
+import { Tab } from 'src/app/models/tab/tab';
+import { TabService } from 'src/app/services/tab.service';
+import { BarElement } from 'src/app/shared/tab-window/elements/bar-element';
+import { ChordElement } from 'src/app/shared/tab-window/elements/chord-element';
+import { NoteElement } from 'src/app/shared/tab-window/elements/note-element';
+import { Guitar } from 'src/app/models/tab/guitar';
+import { KeyChecker } from 'src/app/shared/key-checker/key-checker';
+import { FormBuilder } from '@angular/forms';
+import { UserService } from 'src/app/services/user.service';
+import { TabStateService } from 'src/app/services/tab-state.service';
+
+@Component({
+  selector: 'app-tab',
+  templateUrl: './tab.component.html',
+  styleUrls: ['./tab.component.css']
+})
+export class TabComponent implements OnInit {
+  newTab: boolean = true;
+  @Input() tab: Tab = new Tab();
+  private tabLineDim = new TabLineDim(this.tab.guitar, 15, 3, 20, 20);
+  public tabWindow: TabWindow = new TabWindow(this.tab, this.tabLineDim);
+  
+  public tabInfoForm = this.formBuilder.group({
+    artist: [''],
+    song: [''],
+  })
+
+  private eventsTimeEpsilon: number = 250;
+  private prevTabKeyPress: { time: number, key: string } | null = null;
+
+  constructor(private userService: UserService,
+    private formBuilder: FormBuilder) {}
+
+  createTabWindow(): void {
+    // Create tab window
+    this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
+    this.tabWindow.calc();
+  }
+  
+  ngOnInit(): void {
+    this.createTabWindow();
+  }
+
+  onPrependChordClick(barElement: BarElement): void {
+    barElement.prependChord();
+  }
+
+  onNoteClick(noteElement: NoteElement): void {
+    this.tabWindow.selectedNoteElement = noteElement;
+  }
+
+  onAppendChordClick(barElement: BarElement): void {
+    barElement.appendChord();
+  }
+
+  onTabNumberDown(key: string): void {
+    // Check if any note is selected
+    if (!this.tabWindow.selectedNoteElement) {
+      return;
+    }
+
+    // Check if this is the first note click
+    if (!this.prevTabKeyPress) {
+      this.prevTabKeyPress = {time: new Date().getTime(), key: key};
+      this.tabWindow.selectedNoteElement.note.fret = key;
+      return;
+    }
+    
+    // Calculate time difference
+    let now = new Date().getTime();
+    let timeDiff = now - this.prevTabKeyPress.time;
+    let newFret = Number.parseInt(key);
+    let combFret = Number.parseInt(this.prevTabKeyPress.key + key);
+    let fret = timeDiff < this.eventsTimeEpsilon ? combFret : newFret;
+    // Set fret
+    this.tabWindow.selectedNoteElement.note.fret = `${fret}`;
+
+    // Update prev tab key press object
+    this.prevTabKeyPress.time = now;
+    this.prevTabKeyPress.key = key;
+  }
+
+  onArrowDown(key: string) {
+    // Check if a note is selected
+    if (!this.tabWindow.selectedNoteElement) {
+      return;
+    }
+
+    switch (key) {
+      case 'ArrowDown':
+        this.tabWindow.moveTabSelectedNoteDown();
+        break;
+      case 'ArrowUp':
+        this.tabWindow.moveTabSelectedNoteUp();
+        break;
+      case 'ArrowLeft':
+        this.tabWindow.moveTabSelectedNoteLeft();
+        break;
+      case 'ArrowRight':
+        this.tabWindow.moveTabSelectedNoteRight();
+        break;
+    }
+  }
+
+  onTabBackspacePress(): void {
+    if (!this.tabWindow.selectedNoteElement) {
+      return;
+    }
+
+    if (!this.tabWindow.selectedNoteElement.note.fret) {
+      return;
+    }
+
+    let newFret = this.tabWindow.selectedNoteElement.note.fret.slice(0, -1);
+    this.tabWindow.selectedNoteElement.note.fret = newFret == '' ? null : newFret;
+  }
+
+  onTabCtrlDel() {
+    // Delete selected note chord
+
+  }
+
+  onTabKeyDown(event: KeyboardEvent): void {
+    event.preventDefault();
+    let key = event.key;
+
+    if (KeyChecker.isNumber(key)) {
+      this.onTabNumberDown(key);
+    } else if(KeyChecker.isArrow(key)) {
+      this.onArrowDown(key);
+    } else if (KeyChecker.isBackspace(key)) {
+      this.onTabBackspacePress();
+    }
+  }
+
+  onTabFocusOut(): void {
+    this.tabWindow.selectedNoteElement = null;
+  }
+
+  onSaveChangesClick(): void {
+    if (this.newTab) {
+      this.userService.saveNewTab(this.tab);
+    } else {
+      this.userService.updateTab(this.tab);
+    }
+  }
+}

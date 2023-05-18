@@ -1,0 +1,126 @@
+.tab-info{
+	text-align: center;
+}
+
+:host {
+	--tab-div-color: #B6CAE3;
+	--tab-prepend-color: #9A8BAE;
+	--tab-prepend-opacity: 33%;
+	--tab-append-color: #9A8BAE;
+	--tab-append-opacity: 33%;
+}
+
+.tab-div {
+	background-color: var(--tab-div-color);
+	text-align: center;
+	margin-top: 20px;
+}
+
+.tab-svg {
+	background-color: var(--tab-div-color);
+	margin: auto;
+}
+
+.tab-bar {
+	stroke: black;
+	fill: transparent;
+}
+
+.tab-bar-dur-mismatch {
+	stroke: red;
+	fill: transparent;
+}
+
+.prepend-bar-rect {
+	stroke: none;
+	fill: var(--tab-prepend-color);
+	opacity: var(--tab-prepend-opacity);
+}
+
+.append-bar-rect {
+	stroke: none;
+	fill: var(--tab-append-color);
+	opacity: var(--tab-append-opacity);
+}
+
+.note-add-rect {
+	stroke: none;
+	fill: transparent;
+}
+
+.note-text {
+	text-anchor: middle;
+	alignment-baseline: middle;
+	cursor: default;
+	stroke: var(--tab-div-color);
+	stroke-width: 0.5em;
+	fill: black;
+	paint-order: stroke;
+	stroke-linejoin: round;
+}
+
+.note-text-selected {
+	text-anchor: middle;
+	alignment-baseline: middle;
+	cursor: default;
+	stroke: var(--tab-div-color);
+	stroke-width: 0.5em;
+	fill: red;
+	paint-order: stroke;
+	stroke-linejoin: round;
+}
+
+/* .tab-div {
+	background: #b9d0dd;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -100%);
+}
+
+.tab-hor-line {
+	stroke: black;
+	stroke-width: 1px;
+}
+
+.tab-vert-line {
+	stroke: black;
+	stroke-width: 1px;
+}
+
+.note-text {
+	min-width: 18;
+	max-width: 18;
+	text-anchor: middle;
+	alignment-baseline: middle;
+	cursor: default;
+}
+
+.note-text-invis {
+	stroke: transparent;
+	fill: transparent;
+	text-anchor: middle;
+	alignment-baseline: middle;
+	cursor: default;
+}
+
+.note {
+	fill: #CFE9F8;
+	fill: #b9d0dd;
+	stroke: none;
+}
+
+.note-empty {
+	fill: transparent;
+	stroke: none;
+}
+
+.note-editor {
+	stroke: green;
+	fill: transparent;
+}
+
+.line-path {
+	stroke: black;
+	stroke-width: 1px;
+} */
