@@ -72,4 +72,19 @@ export class Bar {
 	get measure() {
 		return this.beats * this.duration;
 	}
+
+	static fromObject(obj: any): Bar {
+		if (obj.guitar === undefined ||
+			obj.beats === undefined ||
+			obj.duration === undefined ||
+			obj.chords === undefined) {
+			throw new Error('Invalid js object to parse to bar');
+		}
+
+		let guitar = Guitar.fromObject(obj.guitar); // Parse guitar
+		let bar = new Bar(guitar, obj.beats, obj.duration); // Create bar instance
+		bar.chords.length = 0; // Delete default chords
+		obj.chords.forEach((chord: any) => bar.chords.push(Chord.fromObject(chord))); // Parse chords
+		return bar;
+	}
 }

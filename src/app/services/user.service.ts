@@ -12,39 +12,72 @@ import { Tab } from '../models/tab/tab';
 export class UserService {
   private signInUrl = 'http://localhost:3000/api/signin';
   private signUpUrl = 'http://localhost:3000/api/signup';
-  private updateUserUrl = 'http://localhost:3000/api/user';
-  private updateTabsUrl = 'http://localhost:3000/api/tabs';
+  private userUrl = 'http://localhost:3000/api/user';
+  private tabsUrl = 'http://localhost:3000/api/tabs';
 
-  private user: User;
+  private _user: User;
 
   constructor(private http: HttpClient) {
-    this.user = new User();
+    this._user = new User();
   }
-  
-    signUp(signupData: Signup) {
-      let body = signupData;
-  
-      return new Promise((resolve, reject) => {
-        this.http.put<User>(this.signUpUrl, body).subscribe({
-          next: (res: User) => {
-            this.user = res;
-            resolve(res);
-          },
-          error: (err: any) => {
-            reject(err);
-          }
-        })
-      });
+
+  private processAuthResponse(res: any) {
+    // Check if response is valid
+    if (res.data === undefined || res.token === undefined) {
+      throw new Error('Invalid server response');
     }
 
-  signIn(loginData: Login) {
+    // Response body has data and token
+    // Build new user instance
+    let userObject = res.data as User;
+    this._user = User.fromObject(userObject);
+
+    // Save token to local storage
+    let token = res.token;
+    localStorage.setItem('token', token);
+  }
+
+  signUp(signupData: Signup): Promise<User> {
+    let body = signupData;
+
+    return new Promise<User>((resolve, reject) => {
+      this.http.post<any>(this.signUpUrl, body).subscribe({
+        next: (res: any) => {
+          this.processAuthResponse(res);
+          resolve(this._user);
+        },
+        error: (err: any) => {
+          reject(err);
+        }
+      })
+    });
+  }
+
+  signIn(loginData: Login): Promise<User> {
     let body = loginData;
 
     return new Promise<User>((resolve, reject) => {
-      this.http.post<User>(this.signInUrl, body).subscribe({
+      this.http.post<any>(this.signInUrl, body).subscribe({
         next: (res: any) => {
-          this.user = res.userData;
-          this.user = res;
+          this.processAuthResponse(res);
+          resolve(this._user);
+        },
+        error: (err: any) => {
+          reject(err);
+        }
+      })
+    });
+  }
+
+  signOut(): void {
+    localStorage.removeItem('token');
+  }
+
+  getUser(): Promise<User> {
+    return new Promise<User>((resolve, reject) => {
+      this.http.get<User>(this.userUrl).subscribe({
+        next: (res: User) => {
+          this._user = User.fromObject(res);
           resolve(res);
         },
         error: (err: any) => {
@@ -54,21 +87,26 @@ export class UserService {
     });
   }
 
-  updateUser(user: User) {
-    
+  updateUser(): Promise<User> {
+    let body = { userData: this._user };
+
+    return new Promise<User>((resolve, reject) => {
+      this.http.put<User>(this.userUrl, body).subscribe({
+        next: (res: User) => {
+          this._user = User.fromObject(res);
+          resolve(res);
+        },
+        error: (err: any) => {
+          reject(err);
+        }
+      })
+    });
   }
 
-  signOut(): void {
-
-  }
-
-  saveNewTab(tab: Tab) {
-    let body = { userId: this.user.id, userTab: tab };
-
+  deleteUser(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.http.put(this.updateTabsUrl, body).subscribe({
+      this.http.delete(this.userUrl).subscribe({
         next: () => {
-          this.user.tabs.push(tab);
           resolve();
         },
         error: (err: any) => {
@@ -78,17 +116,38 @@ export class UserService {
     });
   }
 
-  updateTab(tab: Tab) {
-    if (tab.id == null) {
+  createNewTab(): Promise<Tab> {
+    let tab = new Tab();
+
+    let body = { userId: this._user.id, userTab: tab };
+
+    return new Promise<any>((resolve, reject) => {
+      this.http.post<any>(this.tabsUrl, body).subscribe({
+        next: (res: any) => {
+          this._user.tabs.push(Tab.fromObject(res));
+          resolve(res);
+        },
+        error: (err: any) => {
+          reject(err);
+        }
+      })
+    });
+  }
+
+  updateTab(tab: Tab): Promise<Tab> {
+    if (tab.id === undefined) {
       throw new Error('Tab id is null, need to create it in the database first');
     }
 
-    let body = { userTab: tab };
+    let body = tab;
 
-    return new Promise<void>((resolve, reject) => {
-      this.http.put(this.updateTabsUrl, body).subscribe({
-        next: () => {
-          resolve();
+    let tabIndex = this._user.tabs.indexOf(tab);
+
+    return new Promise<Tab>((resolve, reject) => {
+      this.http.put<Tab>(this.tabsUrl, body).subscribe({
+        next: (res: Tab) => {
+          this._user.tabs[tabIndex] = Tab.fromObject(res);
+          resolve(res);
         },
         error: (err: any) => {
           reject(err);
@@ -97,17 +156,18 @@ export class UserService {
     });
   }
 
-  deleteTab(tab: Tab) {
-    if (tab.id == null) {
+  deleteTab(tab: Tab): Promise<void> {
+    if (tab.id === undefined) {
       throw new Error('Tab id is null, need to create it in the database first');
     }
 
     let body = { tabId: tab.id };
-    
+    let tabIndex = this._user.tabs.indexOf(tab);
+
     return new Promise<void>((resolve, reject) => {
-      this.http.request('delete', this.updateTabsUrl, {body: body}).subscribe({
+      this.http.request<void>('delete', this.tabsUrl, { body: body }).subscribe({
         next: () => {
-          this.user.tabs.splice(this.user.tabs.indexOf(tab), 1);
+          this._user.tabs.splice(tabIndex, 1);
           resolve();
         },
         error: (err: any) => {
@@ -117,7 +177,15 @@ export class UserService {
     });
   }
 
-  getUser(): User {
-    return this.user;
+  get loggedIn(): boolean {
+    return localStorage.getItem('token') !== null;
+  }
+
+  get token(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  get user(): User {
+    return this._user;
   }
 }

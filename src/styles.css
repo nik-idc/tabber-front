@@ -1,11 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body {
+:root {
+	--main-color: #cfe9f8;
+	--main-dark-color: #364954;
+	--main-light-dark-color: #82b2ca;
+	--main-font: courier, monospace;
+}
+
+html,
+body {
 	height: 100%;
 }
 
 body {
-	margin: 0;
-	font-family: 'Courier New', Courier, monospace;
-	background-color: #CFE9F8;
+	background-color: var(--main-color);
+	font-family: var(--main-font);
+}
+
+button.mat-button,
+button.mat-stroked-button,
+button.mat-raised-button {
+	/* width: 10%; */
+	font-family: var(--main-font);
+}
+
+mat-form-field,
+mat-label,
+mat-error,
+mat-input,
+input.mat-input-element {
+	font-family: var(--main-font);
 }

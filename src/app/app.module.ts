@@ -3,17 +3,19 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule} from '@angular/common/http'
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'
 
 import { AppComponent } from './app.component';
 import { SignInComponent } from './components/signin/signin.component';
 import { SignUpComponent } from './components/signup/signup.component'
-import { MaterialModule } from './material/material.module';
+import { MaterialModule } from './app-material.module';
 
 import { AppRoutingModule, RoutingComponents } from './app-routing.module';
 import { UserComponent } from './components/user/user.component';
 import { TabComponent } from './components/tab/tab.component';
 import { UserService } from './services/user.service';
+import { TokenInterceptorService } from './services/token-interceptor.service';
+import { ConfirmDeleteDialogComponent } from './components/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +25,7 @@ import { UserService } from './services/user.service';
     UserComponent,
     TabComponent,
     RoutingComponents,
+    ConfirmDeleteDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -33,7 +36,11 @@ import { UserService } from './services/user.service';
     MaterialModule,
     HttpClientModule
   ],
-  providers: [UserService],
+  providers: [UserService, {
+    provide: HTTP_INTERCEPTORS,
+    useClass: TokenInterceptorService,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

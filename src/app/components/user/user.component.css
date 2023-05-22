@@ -2,6 +2,16 @@
 	text-align: center;
 }
 
+.tabs-list {
+	display: flex;
+	justify-content: center;
+	justify-items: left;
+}
+
+.tabs-list-button {
+	margin-right: 20px;
+}
+
 .user-info {
 	width: 20%;
 	background-color: #7b8d96;
@@ -12,4 +22,13 @@
 	width: 80%;
 	background-color: #d7ecf7;
 	display: inline-block;
+}
+
+.user-container {
+	height: 100vh;
+}
+
+.user-sidenav {
+	width: 20%;
+	height: 100%;
 }

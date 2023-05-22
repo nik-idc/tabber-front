@@ -13,28 +13,27 @@ import { Login } from 'src/app/models/login';
   styleUrls: ['./signin.component.css']
 })
 export class SignInComponent implements OnInit {
-  constructor(
-    private formBuilder: FormBuilder,
+  constructor(private formBuilder: FormBuilder,
     private router: Router,
     private userService: UserService) {
     this.loginData = new Login();
   }
-  
+
   public loginData: Login;
 
   signInForm = this.formBuilder.group({
     email: ['', [Validators.required]],
-    password: ['', [Validators.required, Validators.pattern('(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,15}')]],
+    password: ['', [Validators.required, Validators.pattern('(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}')]],
   })
 
   ngOnInit(): void {
-    
+
   }
 
   onSignInClick() {
     this.userService.signIn(this.loginData).then(
-      () => {
-        this.router.navigateByUrl('user');
+      (user: User) => {
+        this.router.navigateByUrl(`user`);
       },
       (error: any) => {
         // Angular material dialog box signin error
@@ -42,7 +41,7 @@ export class SignInComponent implements OnInit {
         // Navigate to signin url
         this.router.navigateByUrl('signin');
       }
-    )
+    );
   }
 
   onSignUpClick() {

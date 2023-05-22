@@ -1,18 +1,52 @@
-<div class="user-class">
+<div>
+	<mat-button-toggle mat-button #tabsButton>
+		<mat-icon *ngIf="!tabsButton.checked">menu</mat-icon>
+		<mat-icon *ngIf="tabsButton.checked">close</mat-icon>
+	</mat-button-toggle>
+</div>
 
-	<h4>Select tab to edit:</h4>
-	<mat-form-field appearance="fill">
-		<mat-label>Select tab:</mat-label>
-		<mat-select>
-			<mat-option
-				*ngFor="let tab of user.tabs"
-				[value]="tab.name"
-				(onSelectionChange)="onTabSelected(tab)">
-				{{tab.name}}
-			</mat-option>
-		</mat-select>
-	</mat-form-field>
+<div>
+	<mat-sidenav-container class="user-container">
+		<mat-sidenav [opened]="tabsButton.checked" mode="push" (closedStart)="tabsButton.checked = false;" class="user-sidenav">
+			<div>
+				<mat-list>
+					<mat-list-item>
+						<span>
+							<mat-button-toggle mat-button #editUserButton>
+								<mat-icon *ngIf="!editUserButton.checked">edit</mat-icon>
+								<mat-icon *ngIf="editUserButton.checked">done</mat-icon>
+							</mat-button-toggle>
+							<mat-form-field *ngIf="editUserButton.checked">
+								<input matInput [(ngModel)]="user.username" (input)="onNameChanged()">
+							</mat-form-field>
+						</span>
+					</mat-list-item>
+					<mat-list-item *ngFor="let tab of user.tabs">
+						<span>
+							<button *ngIf="editUserButton.checked" mat-stroked-button (click)="onDeleteTabClick(tab)">
+								<mat-icon>remove</mat-icon>
+							</button>
+							<button mat-stroked-button [disabled]="editUserButton.checked"
+								(click)="onOpenTabClick(tab)">
+								{{tab.name}}
+							</button>
+						</span>
+					</mat-list-item>
+					<mat-list-item>
+						<span>
+							<button mat-stroked-button matTooltip="Add new tab" matTooltipPosition="right"
+								(click)="onAddTabClick()">
+								<mat-icon>add</mat-icon>
+							</button>
+						</span>
+					</mat-list-item>
+				</mat-list>
+			</div>
+		</mat-sidenav>
+		<mat-sidenav-content>
+			<app-tab *ngIf="selectedTab" [tab]="selectedTab"></app-tab>
 
-	<app-tab [tab]="selectedTab"></app-tab>
-
+			<p *ngIf="!selectedTab">Create/select a tab to view/edit it here</p>
+		</mat-sidenav-content>
+	</mat-sidenav-container>
 </div>

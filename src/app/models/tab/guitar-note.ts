@@ -44,4 +44,16 @@ export class GuitarNote {
 			this._fret = val;
 		}
 	}
+
+	static fromObject(obj: any): GuitarNote {
+		if (obj.guitar === undefined ||
+			obj._strNum === undefined ||
+            obj._fret === undefined) {
+            throw new Error('Invalid js object to parse to guitar note');
+        }
+
+		let guitar = Guitar.fromObject(obj.guitar); // Parse guitar
+		let guitarNote = new GuitarNote(guitar, obj._strNum, obj._fret); // Create guitar note instance
+		return guitarNote;
+	}
 }

@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
 import { Rect } from 'src/app/shared/tab-window/shapes/rect';
 import { TabLineDim } from 'src/app/shared/tab-window/tab-line-dim';
 import { TabWindow } from 'src/app/shared/tab-window/tab-window';
 import { Tab } from 'src/app/models/tab/tab';
-import { TabService } from 'src/app/services/tab.service';
 import { BarElement } from 'src/app/shared/tab-window/elements/bar-element';
 import { ChordElement } from 'src/app/shared/tab-window/elements/chord-element';
 import { NoteElement } from 'src/app/shared/tab-window/elements/note-element';
@@ -11,19 +10,18 @@ import { Guitar } from 'src/app/models/tab/guitar';
 import { KeyChecker } from 'src/app/shared/key-checker/key-checker';
 import { FormBuilder } from '@angular/forms';
 import { UserService } from 'src/app/services/user.service';
-import { TabStateService } from 'src/app/services/tab-state.service';
 
 @Component({
   selector: 'app-tab',
   templateUrl: './tab.component.html',
   styleUrls: ['./tab.component.css']
 })
-export class TabComponent implements OnInit {
+export class TabComponent implements OnInit, OnChanges {
   newTab: boolean = true;
   @Input() tab: Tab = new Tab();
   private tabLineDim = new TabLineDim(this.tab.guitar, 15, 3, 20, 20);
   public tabWindow: TabWindow = new TabWindow(this.tab, this.tabLineDim);
-  
+
   public tabInfoForm = this.formBuilder.group({
     artist: [''],
     song: [''],
@@ -33,16 +31,24 @@ export class TabComponent implements OnInit {
   private prevTabKeyPress: { time: number, key: string } | null = null;
 
   constructor(private userService: UserService,
-    private formBuilder: FormBuilder) {}
+    private formBuilder: FormBuilder) { }
 
   createTabWindow(): void {
     // Create tab window
     this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
     this.tabWindow.calc();
+
+    console.log(this.tabWindow);
   }
-  
+
   ngOnInit(): void {
     this.createTabWindow();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Create tab window
+    this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
+    this.tabWindow.calc();
   }
 
   onPrependChordClick(barElement: BarElement): void {
@@ -65,11 +71,11 @@ export class TabComponent implements OnInit {
 
     // Check if this is the first note click
     if (!this.prevTabKeyPress) {
-      this.prevTabKeyPress = {time: new Date().getTime(), key: key};
+      this.prevTabKeyPress = { time: new Date().getTime(), key: key };
       this.tabWindow.selectedNoteElement.note.fret = key;
       return;
     }
-    
+
     // Calculate time difference
     let now = new Date().getTime();
     let timeDiff = now - this.prevTabKeyPress.time;
@@ -130,7 +136,7 @@ export class TabComponent implements OnInit {
 
     if (KeyChecker.isNumber(key)) {
       this.onTabNumberDown(key);
-    } else if(KeyChecker.isArrow(key)) {
+    } else if (KeyChecker.isArrow(key)) {
       this.onArrowDown(key);
     } else if (KeyChecker.isBackspace(key)) {
       this.onTabBackspacePress();
@@ -142,10 +148,13 @@ export class TabComponent implements OnInit {
   }
 
   onSaveChangesClick(): void {
-    if (this.newTab) {
-      this.userService.saveNewTab(this.tab);
-    } else {
-      this.userService.updateTab(this.tab);
-    }
+    this.userService.updateTab(this.tab).then(
+      (res) => {
+
+      },
+      (err) => {
+        
+      }
+    );
   }
 }

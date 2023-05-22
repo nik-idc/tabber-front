@@ -5,6 +5,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { PasswordValidator } from 'src/app/shared/validators/password.validator';
 import { UserService } from 'src/app/services/user.service';
 import { Signup } from 'src/app/models/signup';
+import { User } from 'src/app/models/user';
 
 @Component({
   selector: 'app-sign-up',
@@ -22,19 +23,19 @@ export class SignUpComponent implements OnInit {
   signUpForm = this.formBuilder.group({
     username: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.pattern('(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,15}')]],
+    password: ['', [Validators.required, Validators.pattern('(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}')]],
     confirmPassword: ['', [Validators.required]],
   }, {validator: PasswordValidator});
 
-  confirmPassword!: string;
+  public confirmPassword: string = '';
   public signupData: Signup;
 
   ngOnInit(): void {}
 
   onSignUpClick() {
     this.userService.signUp(this.signupData).then(
-      () => {
-        this.router.navigateByUrl('user');
+      (user: User) => {
+        this.router.navigateByUrl(`user`);
       },
       (error: any) => {
         // Angular material dialog box signup error

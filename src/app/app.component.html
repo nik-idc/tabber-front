@@ -1,3 +1,12 @@
+<nav>
+	<ul>
+		<li><a *ngIf="!loggedIn" routerLink="signin">Sign In</a></li>
+		<li><a *ngIf="!loggedIn" routerLink="signup">Sign Up</a></li>
+		<li><a *ngIf="loggedIn" (click)="onSignOutClick()">Sign Out</a></li>
+	</ul>
+</nav>
+
 <h1>{{title}}</h1>
+
 
 <router-outlet></router-outlet>
