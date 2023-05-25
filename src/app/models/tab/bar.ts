@@ -5,20 +5,28 @@ import { Tab } from "./tab";
 
 export class Bar {
 	readonly guitar: Guitar;
-	readonly beats: number;
-	readonly duration: NoteDuration;
+	private _tempo: number;
+	private _beats: number;
+	private _duration: NoteDuration;
 	readonly chords: Chord[];
-	private _durationsFit: boolean
+	private _durationsFit: boolean;
 
-	constructor(guitar: Guitar, beats: number, duration: NoteDuration) {
+	constructor(guitar: Guitar, tempo: number, beats: number, duration: NoteDuration, chords: Chord[] | undefined) {
 		this.guitar = guitar;
-		this.beats = beats;
-		this.duration = duration;
-		this.chords = [];
-		for (let beat = 0; beat < this.beats; beat++) {
-			this.chords.push(new Chord(this.guitar, duration));
-		}
+		this._tempo = tempo;
+		this._beats = beats;
+		this._duration = duration;
 		this._durationsFit = true;
+		if (chords === undefined) {
+			this.chords = [];
+			for (let i = 0; i < this._beats; i++) {
+				this.chords.push(new Chord(this.guitar, this._duration));
+			}
+		} else {
+			this.chords = chords;
+		}
+
+		this.checkDurationsFit();
 	}
 
 	checkDurationsFit(): void {
@@ -27,7 +35,7 @@ export class Bar {
 			durations += chord.duration;
 		}
 
-		this._durationsFit = durations == (this.beats * this.duration);
+		this._durationsFit = durations == (this._beats * this._duration);
 	}
 
 	insertEmptyChord(index: number): void {
@@ -65,6 +73,46 @@ export class Bar {
 		this.checkDurationsFit();
 	}
 
+	changeChordDuration(chord: Chord, duration: NoteDuration): void {
+		let index = this.chords.indexOf(chord);
+		this.chords[index].duration = duration;
+		this.checkDurationsFit();
+	}
+
+	get beats(): number {
+		return this._beats;
+	}
+
+	set beats(newBeats: number) {
+		if (newBeats < 1 || newBeats > 32) {
+			throw new Error(`${newBeats} is invalid beats value`)
+		}
+
+        this._beats = newBeats;
+		this.checkDurationsFit();
+	}
+
+	get duration(): number {
+		return this._duration;
+	}
+
+	set duration(newDuration: number) {
+		if (!Object.values(NoteDuration).includes(newDuration)) {
+			throw new Error(`${newDuration} is invalid duration value`)
+		}
+
+        this._duration = newDuration;
+		this.checkDurationsFit();
+	}
+
+	set tempo(newTempo: number) {
+		this._tempo = newTempo;
+	}
+
+	get tempo(): number {
+		return this._tempo;
+	}
+
 	get durationsFit(): boolean {
 		return this._durationsFit;
 	}
@@ -75,16 +123,19 @@ export class Bar {
 
 	static fromObject(obj: any): Bar {
 		if (obj.guitar === undefined ||
-			obj.beats === undefined ||
-			obj.duration === undefined ||
-			obj.chords === undefined) {
+			obj._beats === undefined ||
+			obj._duration === undefined ||
+			obj.chords === undefined ||
+			obj._durationsFit === undefined ||
+			obj._tempo === undefined) {
 			throw new Error('Invalid js object to parse to bar');
 		}
 
 		let guitar = Guitar.fromObject(obj.guitar); // Parse guitar
-		let bar = new Bar(guitar, obj.beats, obj.duration); // Create bar instance
+		let bar = new Bar(guitar, obj._tempo, obj._beats, obj._duration, undefined); // Create bar instance
 		bar.chords.length = 0; // Delete default chords
 		obj.chords.forEach((chord: any) => bar.chords.push(Chord.fromObject(chord))); // Parse chords
+		bar.checkDurationsFit();
 		return bar;
 	}
 }

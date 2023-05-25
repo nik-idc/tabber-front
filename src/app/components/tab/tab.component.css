@@ -1,19 +1,23 @@
-.tab-info{
+.tab-info {
 	text-align: center;
 }
 
 :host {
-	--tab-div-color: #B6CAE3;
-	--tab-prepend-color: #9A8BAE;
+	--tab-div-color: #b6cae3;
+	--tab-prepend-color: #9a8bae;
 	--tab-prepend-opacity: 33%;
-	--tab-append-color: #9A8BAE;
+	--tab-append-color: #9a8bae;
 	--tab-append-opacity: 33%;
+	--tab-measure-color: #906c8c;
+	--tab-measure-opacity: 33%;
+	--controls-background-color: #906c8c;
+	--controls-dark-background-color: #7e5e7a;
 }
 
 .tab-div {
 	background-color: var(--tab-div-color);
 	text-align: center;
-	margin-top: 20px;
+	padding-bottom: 20px;
 }
 
 .tab-svg {
@@ -43,7 +47,7 @@
 	opacity: var(--tab-append-opacity);
 }
 
-.note-add-rect {
+.note-select-rect {
 	stroke: none;
 	fill: transparent;
 }
@@ -68,4 +72,53 @@
 	fill: red;
 	paint-order: stroke;
 	stroke-linejoin: round;
+}
+
+.measure-beats-text {
+	text-anchor: middle;
+	alignment-baseline: middle;
+	cursor: default;
+	user-select: none;
+	font-size: 20px;
+	stroke: var(--tab-div-color);
+	stroke-width: 0.5em;
+	paint-order: stroke;
+	stroke-linejoin: round;
+}
+
+.measure-duration-text {
+	text-anchor: middle;
+	alignment-baseline: middle;
+	cursor: default;
+	user-select: none;
+	font-size: 20px;
+	stroke: var(--tab-div-color);
+	stroke-width: 0.5em;
+	paint-order: stroke;
+	stroke-linejoin: round;
+}
+
+.note-svg {
+	width: 20px;
+	height: 20px;
+}
+
+.tab-controls {
+	display: flex;
+	position: sticky;
+	top: 0;
+}
+
+.note-controls,
+.play-controls,
+.rhythm-controls {
+	text-align: center;
+	flex-grow: 1;
+	flex-basis: 0;
+	background-color: var(--controls-background-color);
+}
+
+.rhythm-input {
+	float: left;
+	background-color: var(--controls-dark-background-color);
 }

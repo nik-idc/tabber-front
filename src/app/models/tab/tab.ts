@@ -26,7 +26,7 @@ export class Tab {
 			this.bars = bars;
 		} else {
 			this.bars = [
-				new Bar(this.guitar, 4, NoteDuration.Quarter),
+				new Bar(this.guitar, 120, 4, NoteDuration.Quarter, undefined),
 			];
 		}
 	}

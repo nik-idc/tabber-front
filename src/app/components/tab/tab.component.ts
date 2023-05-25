@@ -51,6 +51,43 @@ export class TabComponent implements OnInit, OnChanges {
     this.tabWindow.calc();
   }
 
+  onNoteDurationClick(duration: number): void {
+    // Check if any note is selected
+    if (!this.tabWindow.selectedNoteElement) {
+      return;
+    }
+
+    let chord = this.tabWindow.selectedNoteElement.chordElement.chord;
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeChordDuration(chord, duration);
+  }
+
+  onBeatsChanged(beats: number) {
+    // Check if any note is selected
+    if (!this.tabWindow.selectedNoteElement) {
+      return;
+    }
+
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeBarBeats(beats);
+  }
+
+  onDurationChanged(duration: number) {
+    // Check if any note is selected
+    if (!this.tabWindow.selectedNoteElement) {
+      return;
+    }
+
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeBarDuration(1 / duration);
+  }
+
+  onTempoChanged(tempo: number) {
+    // Check if any note is selected
+    if (!this.tabWindow.selectedNoteElement) {
+      return;
+    }
+
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeTempo(tempo);
+  }
+
   onPrependChordClick(barElement: BarElement): void {
     barElement.prependChord();
   }
@@ -141,10 +178,6 @@ export class TabComponent implements OnInit, OnChanges {
     } else if (KeyChecker.isBackspace(key)) {
       this.onTabBackspacePress();
     }
-  }
-
-  onTabFocusOut(): void {
-    this.tabWindow.selectedNoteElement = null;
   }
 
   onSaveChangesClick(): void {

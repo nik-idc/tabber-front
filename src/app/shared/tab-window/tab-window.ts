@@ -14,7 +14,7 @@ export class TabWindow {
 	readonly dim: TabLineDim;
 	readonly barElements: BarElement[];
 	readonly barsLines: number[][];
-	public selectedNoteElement: NoteElement | null;
+	public selectedNoteElement: NoteElement | undefined;
 	private _linesPath: string;
 	
 	constructor (tab: Tab, dim: TabLineDim) {
@@ -22,17 +22,17 @@ export class TabWindow {
 		this.dim = dim;
 		this.barElements = [];
 		this.barsLines = [];
-		this.selectedNoteElement = null;
+		this.selectedNoteElement = undefined;
 		this._linesPath = '';
 		// Create path
 		for (let strId = 0; strId < this.tab.guitar.stringsCount; strId++) {
-			this._linesPath += `M0,${strId * this.dim.noteMinSize}H${this.dim.tabLineWidth}`;
+			this._linesPath += `M0,${this.dim.durationsLineHeight + strId * this.dim.noteMinSize}H${this.dim.tabLineWidth}`;
 		}
 	}
 
 	private createBarElements(): void {
 		this.barElements.length = 0;
-		let barCoords = new Point(0, 0);
+		let barCoords = new Point(0, this.dim.durationsLineHeight);
 
 		// Create bar elements
 		for (let barId = 0; barId < this.tab.bars.length; barId++) {
@@ -43,7 +43,14 @@ export class TabWindow {
 				showMeasure = false;
 			}
 
-			let barElement = new BarElement(this, barCoords, this.tab.bars[barId], showMeasure);
+			let showTempo = false;
+			if (barId == 0 || this.tab.bars[barId - 1].tempo != this.tab.bars[barId].tempo) {
+                showTempo = true;
+            } else {
+                showTempo = false;
+            }
+
+			let barElement = new BarElement(this, barCoords, this.tab.bars[barId], showMeasure, showTempo);
 			this.barElements.push(barElement);
 			// Update x position of next bar element
 			barCoords.x += barElement.rect.width;
@@ -155,7 +162,7 @@ export class TabWindow {
 		} else if (chordElementId == barElement.chordElements.length - 1) {
 			if (barElementId == this.barElements.length - 1) {
 				// Create new bar
-				let newBar = new Bar(this.tab.guitar, 4, NoteDuration.Quarter);
+				let newBar = new Bar(this.tab.guitar, 120, 4, NoteDuration.Quarter, undefined);
 				this.tab.bars.push(newBar);
 				this.calc();
 			}
