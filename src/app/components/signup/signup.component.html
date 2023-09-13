@@ -37,7 +37,7 @@
 		<div class="form-group">
 			<mat-form-field appearance="fill">
 				<mat-label>Repeat your password:</mat-label>
-					<input matInput [class.is-invalid]="signUpForm.errors?.['misMatch']"
+				<input matInput [class.is-invalid]="signUpForm.errors?.['misMatch']"
 					formControlName="confirmPassword" type="password" class="form-control" [(ngModel)]="confirmPassword">
 				<mat-error *ngIf="!signUpForm.valid">Passwords must match</mat-error>
 			</mat-form-field>

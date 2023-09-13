@@ -22,7 +22,7 @@ export class SignInComponent implements OnInit {
   public loginData: Login;
 
   signInForm = this.formBuilder.group({
-    email: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.pattern('(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}')]],
   })
 
