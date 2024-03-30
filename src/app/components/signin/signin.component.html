@@ -1,34 +1,47 @@
 <!--Login div-->
 <div class="login-class">
-	<h1>Login</h1>
+  <h1>Sign In</h1>
 
-	<h2>Please enter your login data</h2>
+  <h2>Please enter your user data</h2>
 
-	<form [formGroup]="signInForm" (ngSubmit)="onSignInClick()">
-		<div class="form-group">
-			<mat-form-field appearance="fill">
-				<mat-label>Email:</mat-label>
-				<input matInput formControlName="email" type="email" class="form-control" [(ngModel)]="loginData.email">
-				<mat-error *ngIf="!signInForm.valid">Email required</mat-error>
-			</mat-form-field>
-		</div>
+  <form [formGroup]="signInForm" (ngSubmit)="onSignInClick()">
+    <div class="form-group">
+      <mat-form-field appearance="fill">
+        <mat-label>Email:</mat-label>
+        <input
+          matInput
+          formControlName="email"
+          type="email"
+          class="form-control"
+          [(ngModel)]="signinData.email"
+        />
+        <mat-error *ngIf="!signInForm.valid">Email required</mat-error>
+      </mat-form-field>
+    </div>
 
-		<div class="form-group">
-			<mat-form-field appearance="fill">
-				<mat-label>Password:</mat-label>
-				<input matInput formControlName="password" type="password" class="form-control" [(ngModel)]="loginData.password">
-				<mat-error *ngIf="!signInForm.valid">Password required</mat-error>
-			</mat-form-field>
-		</div>
+    <div class="form-group">
+      <mat-form-field appearance="fill">
+        <mat-label>Password:</mat-label>
+        <input
+          matInput
+          formControlName="password"
+          type="password"
+          class="form-control"
+          [(ngModel)]="signinData.password"
+        />
+        <mat-error *ngIf="!signInForm.valid">Password required</mat-error>
+      </mat-form-field>
+    </div>
 
-		<div class="form-group">
-			<button [disabled]="!signInForm.valid" mat-button type="submit">Sign In</button>
-		</div>
+    <div class="form-group">
+      <button [disabled]="!signInForm.valid" mat-button type="submit">
+        Sign In
+      </button>
+    </div>
+  </form>
 
-	</form>
-
-	<div>
-		<p>Don't have an account yet? Consider signing up</p>
-		<button mat-raised-button (click)="onSignUpClick()">Sign Up</button>
-	</div>
+  <div>
+    <p>Don't have an account yet? Consider signing up</p>
+    <button mat-raised-button (click)="onSignUpClick()">Sign Up</button>
+  </div>
 </div>

@@ -2,30 +2,44 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
-import { PasswordValidator } from 'src/app/shared/validators/password.validator';
-import { UserService } from 'src/app/services/user.service';
-import { Signup } from 'src/app/models/signup';
-import { User } from 'src/app/models/user';
+import { PasswordValidator } from 'src/app/_shared/validators/password.validator';
+import { Signup } from 'src/app/_models/signup';
+import { User } from 'src/app/_models/user';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from 'src/app/_services/auth.service';
 
 @Component({
   selector: 'app-sign-up',
   templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.css']
+  styleUrls: ['./signup.component.css'],
 })
 export class SignUpComponent implements OnInit {
   constructor(
+    private snackBar: MatSnackBar,
     private formBuilder: FormBuilder,
-    private userService: UserService,
-    private router: Router) {
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.signupData = new Signup();
   }
 
-  signUpForm = this.formBuilder.group({
-    username: ['', [Validators.required]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.pattern('(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}')]],
-    confirmPassword: ['', [Validators.required]],
-  }, {validator: PasswordValidator});
+  signUpForm = this.formBuilder.group(
+    {
+      username: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(
+            '(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}'
+          ),
+        ],
+      ],
+      confirmPassword: ['', [Validators.required]],
+    },
+    { validator: PasswordValidator }
+  );
 
   public confirmPassword: string = '';
   public signupData: Signup;
@@ -33,15 +47,12 @@ export class SignUpComponent implements OnInit {
   ngOnInit(): void {}
 
   onSignUpClick() {
-    this.userService.signUp(this.signupData).then(
+    this.authService.signup(this.signupData).then(
       (user: User) => {
-        this.router.navigateByUrl(`user`);
+        this.router.navigateByUrl(`user/${user.id}`);
       },
-      (error: any) => {
-        // Angular material dialog box signup error
-
-        // Navigate to signin url
-        this.router.navigateByUrl('signin');
+      (error: HttpErrorResponse) => {
+        this.snackBar.open(`Error signing up: ${error.message}`, 'OK');
       }
     );
   }

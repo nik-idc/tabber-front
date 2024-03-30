@@ -1,44 +1,70 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
-import { Rect } from 'src/app/shared/tab-window/shapes/rect';
-import { TabLineDim } from 'src/app/shared/tab-window/tab-line-dim';
-import { TabWindow } from 'src/app/shared/tab-window/tab-window';
-import { Tab } from 'src/app/models/tab/tab';
-import { BarElement } from 'src/app/shared/tab-window/elements/bar-element';
-import { ChordElement } from 'src/app/shared/tab-window/elements/chord-element';
-import { NoteElement } from 'src/app/shared/tab-window/elements/note-element';
-import { Guitar } from 'src/app/models/tab/guitar';
-import { KeyChecker } from 'src/app/shared/key-checker/key-checker';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
+import { Rect } from 'src/app/_shared/tab-window/shapes/rect';
+import { TabLineDim } from 'src/app/_shared/tab-window/tab-line-dim';
+import { TabWindow } from 'src/app/_shared/tab-window/tab-window';
+import { Tab } from 'src/app/_models/tab/tab';
+import { BarElement } from 'src/app/_shared/tab-window/elements/bar-element';
+import { ChordElement } from 'src/app/_shared/tab-window/elements/chord-element';
+import { NoteElement } from 'src/app/_shared/tab-window/elements/note-element';
+import { Guitar } from 'src/app/_models/tab/guitar';
+import { KeyChecker } from 'src/app/_shared/key-checker/key-checker';
 import { FormBuilder } from '@angular/forms';
-import { UserService } from 'src/app/services/user.service';
+import { UserService } from 'src/app/_services/user.service';
+import { TabService } from 'src/app/_services/tab.service';
+import { AuthService } from 'src/app/_services/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-tab',
   templateUrl: './tab.component.html',
-  styleUrls: ['./tab.component.css']
+  styleUrls: ['./tab.component.css'],
 })
 export class TabComponent implements OnInit, OnChanges {
   newTab: boolean = true;
   @Input() tab: Tab = new Tab();
-  private tabLineDim = new TabLineDim(this.tab.guitar, 15, 3, 20, 20);
+  private tabLineDim: TabLineDim = new TabLineDim(
+    this.tab.guitar,
+    15,
+    3,
+    20,
+    20
+  );
   public tabWindow: TabWindow = new TabWindow(this.tab, this.tabLineDim);
 
   public tabInfoForm = this.formBuilder.group({
     artist: [''],
     song: [''],
-  })
+  });
 
   private eventsTimeEpsilon: number = 250;
-  private prevTabKeyPress: { time: number, key: string } | null = null;
+  private prevTabKeyPress: { time: number; key: string } | null = null;
 
-  constructor(private userService: UserService,
-    private formBuilder: FormBuilder) { }
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+    private tabService: TabService,
+    private snackBar: MatSnackBar,
+    private formBuilder: FormBuilder
+  ) {}
 
   createTabWindow(): void {
-    // Create tab window
+    this.tab = this.tabService.tab;
+    this.tabLineDim = new TabLineDim(this.tab.guitar, 15, 3, 20, 20);
     this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
     this.tabWindow.calc();
-
-    console.log(this.tabWindow);
   }
 
   ngOnInit(): void {
@@ -58,7 +84,10 @@ export class TabComponent implements OnInit, OnChanges {
     }
 
     let chord = this.tabWindow.selectedNoteElement.chordElement.chord;
-    this.tabWindow.selectedNoteElement.chordElement.barElement.changeChordDuration(chord, duration);
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeChordDuration(
+      chord,
+      duration
+    );
   }
 
   onBeatsChanged(beats: number) {
@@ -67,7 +96,9 @@ export class TabComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.tabWindow.selectedNoteElement.chordElement.barElement.changeBarBeats(beats);
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeBarBeats(
+      beats
+    );
   }
 
   onDurationChanged(duration: number) {
@@ -76,7 +107,9 @@ export class TabComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.tabWindow.selectedNoteElement.chordElement.barElement.changeBarDuration(1 / duration);
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeBarDuration(
+      1 / duration
+    );
   }
 
   onTempoChanged(tempo: number) {
@@ -85,7 +118,9 @@ export class TabComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.tabWindow.selectedNoteElement.chordElement.barElement.changeTempo(tempo);
+    this.tabWindow.selectedNoteElement.chordElement.barElement.changeTempo(
+      tempo
+    );
   }
 
   onPrependChordClick(barElement: BarElement): void {
@@ -159,12 +194,12 @@ export class TabComponent implements OnInit, OnChanges {
     }
 
     let newFret = this.tabWindow.selectedNoteElement.note.fret.slice(0, -1);
-    this.tabWindow.selectedNoteElement.note.fret = newFret == '' ? null : newFret;
+    this.tabWindow.selectedNoteElement.note.fret =
+      newFret == '' ? null : newFret;
   }
 
   onTabCtrlDel() {
     // Delete selected note chord
-
   }
 
   onTabKeyDown(event: KeyboardEvent): void {
@@ -181,13 +216,8 @@ export class TabComponent implements OnInit, OnChanges {
   }
 
   onSaveChangesClick(): void {
-    this.userService.updateTab(this.tab).then(
-      (res) => {
-
-      },
-      (err) => {
-        
-      }
-    );
+    this.tabService.saveTab().catch((error: HttpErrorResponse) => {
+      this.snackBar.open(`Error during saving tab: ${error.message}`, 'OK');
+    });
   }
 }

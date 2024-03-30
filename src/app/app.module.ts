@@ -13,9 +13,10 @@ import { MaterialModule } from './app-material.module';
 import { AppRoutingModule, RoutingComponents } from './app-routing.module';
 import { UserComponent } from './components/user/user.component';
 import { TabComponent } from './components/tab/tab.component';
-import { UserService } from './services/user.service';
-import { TokenInterceptorService } from './services/token-interceptor.service';
+import { UserService } from './_services/user.service';
+import { TokenInterceptorService } from './_services/token-interceptor.service';
 import { ConfirmDeleteDialogComponent } from './components/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
+import { InfoComponent } from './components/info/info.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { ConfirmDeleteDialogComponent } from './components/dialogs/confirm-delet
     TabComponent,
     RoutingComponents,
     ConfirmDeleteDialogComponent,
+    InfoComponent,
   ],
   imports: [
     BrowserModule,

@@ -9,6 +9,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle'
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatCardModule } from '@angular/material/card'
 import { MatDialogModule } from '@angular/material/dialog'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
 
 const MaterialComponent = [
   MatButtonModule,
@@ -21,7 +22,8 @@ const MaterialComponent = [
   MatButtonToggleModule,
   MatSidenavModule,
   MatCardModule,
-  MatDialogModule
+  MatDialogModule,
+  MatSnackBarModule,
 ];
 
 @NgModule({

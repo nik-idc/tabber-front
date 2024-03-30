@@ -1,10 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root {
-	--main-color: #cfe9f8;
-	--main-dark-color: #364954;
-	--main-light-dark-color: #82b2ca;
-	--main-font: courier, monospace;
+	--color: #cfe9f8;
+	--dark-color: #364954;
+	--light-dark-color: #82b2ca;
+	--font: raleway;
+	--font-italic: raleway-italic;
+}
+
+@font-face {
+	font-family: raleway;
+	src: url(assets/fonts/Raleway/Raleway-VariableFont_wght.ttf) format('truetype');
+}
+
+@font-face {
+	font-family: raleway-italic;
+	src: url(assets/fonts/Raleway/Raleway-Italic-VariableFont_wght.ttf) format('truetype');
 }
 
 html,
@@ -13,21 +24,11 @@ body {
 }
 
 body {
-	background-color: var(--main-color);
-	font-family: var(--main-font);
+	background-color: var(--color);
+	font-family: var(--font);
 }
 
-button.mat-button,
-button.mat-stroked-button,
-button.mat-raised-button {
-	/* width: 10%; */
-	font-family: var(--main-font);
-}
-
-mat-form-field,
-mat-label,
-mat-error,
-mat-input,
-input.mat-input-element {
-	font-family: var(--main-font);
+/* This makes '--font' the default font across the entire app */
+* {
+	font-family: var(--font);
 }

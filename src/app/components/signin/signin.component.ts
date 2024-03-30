@@ -1,51 +1,57 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Route, Router } from '@angular/router';
-import { HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { UserService } from 'src/app/services/user.service';
-import { User } from 'src/app/models/user';
-import { Login } from 'src/app/models/login';
-
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { FormBuilder, Validators } from '@angular/forms';
+import { UserService } from 'src/app/_services/user.service';
+import { User } from 'src/app/_models/user';
+import { Signin } from 'src/app/_models/login';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from 'src/app/_services/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-sign-in',
   templateUrl: './signin.component.html',
-  styleUrls: ['./signin.component.css']
+  styleUrls: ['./signin.component.css'],
 })
 export class SignInComponent implements OnInit {
-  constructor(private formBuilder: FormBuilder,
+  constructor(
+    private snackBar: MatSnackBar,
+    private formBuilder: FormBuilder,
     private router: Router,
-    private userService: UserService) {
-    this.loginData = new Login();
+    private authService: AuthService
+  ) {
+    this.signinData = new Signin();
   }
 
-  public loginData: Login;
+  public signinData: Signin;
 
   signInForm = this.formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.pattern('(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}')]],
-  })
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(
+          '(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}'
+        ),
+      ],
+    ],
+  });
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void {}
 
   onSignInClick() {
-    this.userService.signIn(this.loginData).then(
+    this.authService.signin(this.signinData).then(
       (user: User) => {
-        this.router.navigateByUrl(`user`);
+        this.router.navigateByUrl(`user/${user.id}`);
       },
-      (error: any) => {
-        // Angular material dialog box signin error
-
-        // Navigate to signin url
-        this.router.navigateByUrl('signin');
+      (error: HttpErrorResponse) => {
+        this.snackBar.open(`Error signing in: ${error.message}`, 'OK');
       }
     );
   }
 
   onSignUpClick() {
-    // Redirect to the sign up page
     this.router.navigateByUrl('signup');
   }
 }
