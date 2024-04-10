@@ -7,17 +7,19 @@ import { ConfirmDeleteDialogComponent } from '../dialogs/confirm-delete-dialog/c
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TabService } from 'src/app/_services/tab.service';
+import { AuthService } from 'src/app/_services/auth.service';
 
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
-  styleUrls: ['./user.component.css'],
+  styleUrls: ['./user.component.scss'],
 })
 export class UserComponent implements OnInit {
   public selectedTab: Tab | undefined;
 
   constructor(
     private snackBar: MatSnackBar,
+    private authService: AuthService,
     private userService: UserService,
     private tabService: TabService,
     private dialog: MatDialog
@@ -77,5 +79,9 @@ export class UserComponent implements OnInit {
 
   get user(): User | undefined {
     return this.userService.user;
+  }
+
+  get currentUser(): User | undefined {
+    return this.authService.currentUser;
   }
 }

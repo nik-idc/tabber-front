@@ -17,6 +17,8 @@ import { UserService } from './_services/user.service';
 import { TokenInterceptorService } from './_services/token-interceptor.service';
 import { ConfirmDeleteDialogComponent } from './components/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { InfoComponent } from './components/info/info.component';
+import { TabListComponent } from './components/tab-list/tab-list.component';
+import { TabCardComponent } from './components/tab-list/tab-card/tab-card.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +30,8 @@ import { InfoComponent } from './components/info/info.component';
     RoutingComponents,
     ConfirmDeleteDialogComponent,
     InfoComponent,
+    TabListComponent,
+    TabCardComponent,
   ],
   imports: [
     BrowserModule,

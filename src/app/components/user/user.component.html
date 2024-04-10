@@ -1,11 +1,18 @@
-<div>
-  <mat-button-toggle mat-button #tabsButton>
-    <mat-icon *ngIf="!tabsButton.checked">menu</mat-icon>
-    <mat-icon *ngIf="tabsButton.checked">close</mat-icon>
-  </mat-button-toggle>
+<div class="container">
+  <div class="tabsContainer">
+    <div class="allTabsContainer">
+      <app-tab-list
+        [tabs]="user?.tabs"
+        [canEdit]="currentUser?.email === user?.email"
+        [title]="'Tabs'"
+      ></app-tab-list>
+    </div>
+  </div>
+
+  <div class="userContainer">Username: {{ user?.username }}</div>
 </div>
 
-<div>
+<!-- <div>
   <mat-sidenav-container class="user-container">
     <mat-sidenav
       [opened]="tabsButton.checked"
@@ -69,4 +76,4 @@
       <p *ngIf="!selectedTab">Create/select a tab to view/edit it here</p>
     </mat-sidenav-content>
   </mat-sidenav-container>
-</div>
+</div> -->

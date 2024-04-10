@@ -11,7 +11,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-sign-in',
   templateUrl: './signin.component.html',
-  styleUrls: ['./signin.component.css'],
+  styleUrls: ['./signin.component.scss'],
 })
 export class SignInComponent implements OnInit {
   constructor(

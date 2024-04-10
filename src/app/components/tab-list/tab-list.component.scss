@@ -1,0 +1,70 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: #d2d2d2FF;
+}
+
+.titleContainer {
+  flex: 1;
+}
+
+.tabsContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  background-color: rgb(155, 155, 155);
+}
+
+.newTabContainer {
+  float: right;
+  display: list-item;
+}
+
+.tabContainer {
+  cursor: pointer;
+  width: 33%;
+  max-width: 33%;
+  margin: 5px 5px 5px 5px;
+  text-align: center;
+}
+
+.userContainer {
+  flex: 1;
+  background-color: yellow;
+}
+
+/* .user-class {
+      text-align: center;
+  }
+  
+  .tabs-list {
+      display: flex;
+      justify-content: center;
+      justify-items: left;
+  }
+  
+  .tabs-list-button {
+      margin-right: 20px;
+  }
+  
+  .user-info {
+      width: 20%;
+      background-color: #7b8d96;
+      display: inline-block;
+  }
+  
+  .user-data {
+      width: 80%;
+      background-color: #d7ecf7;
+      display: inline-block;
+  }
+  
+  .user-container {
+      height: 100vh;
+  }
+  
+  .user-sidenav {
+      width: 20%;
+      height: 100%;
+  } */

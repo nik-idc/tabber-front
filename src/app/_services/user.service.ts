@@ -19,6 +19,14 @@ export class UserService {
       this.http.get<User>(url).subscribe({
         next: (res: User) => {
           this._user = User.fromObject(res);
+
+          this._user.tabs = [];
+          this._user.tabs.push(new Tab(1, 'Frank Ocean', 'Nights'));
+          this._user.tabs.push(new Tab(2, 'Frank Ocean', 'Solo'));
+          this._user.tabs.push(
+            new Tab(3, 'While She Sleeps', 'Silence Speaks')
+          );
+          
           resolve(res);
         },
         error: (error: HttpErrorResponse) => {
@@ -104,7 +112,7 @@ export class UserService {
             const tabIndex = this._user.tabs?.findIndex((tab) => {
               return tab.id === tabId;
             });
-            
+
             if (tabIndex) {
               this._user.tabs?.splice(tabIndex, 1);
             }
