@@ -5,7 +5,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { PasswordValidator } from 'src/app/_shared/validators/password.validator';
 import { Signup } from 'src/app/_models/signup';
 import { User } from 'src/app/_models/user';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { AuthService } from 'src/app/_services/auth.service';
 
 @Component({
