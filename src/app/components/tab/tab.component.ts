@@ -25,7 +25,7 @@ import { UserService } from 'src/app/_services/user.service';
 import { TabService } from 'src/app/_services/tab.service';
 import { AuthService } from 'src/app/_services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-tab',
