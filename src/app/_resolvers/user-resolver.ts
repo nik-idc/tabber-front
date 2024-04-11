@@ -11,6 +11,7 @@ export const userResolver: ResolveFn<User> = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
+  console.log(route);
   return inject(UserService)
     .getUser(route.params['id'])
     .then((user: User) => {

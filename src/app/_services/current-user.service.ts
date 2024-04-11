@@ -4,11 +4,12 @@ import { User } from '../_models/user';
 import { Signin } from '../_models/login';
 import { environment } from 'src/environments/environment';
 import { Signup } from '../_models/signup';
+import { Tab } from '../_models/tab/tab';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class CurrentUserService {
   private _currentUser?: User = undefined;
 
   constructor(private http: HttpClient) {
@@ -94,6 +95,34 @@ export class AuthService {
   signout(): void {
     this._currentUser = undefined;
     localStorage.removeItem('currentUser');
+  }
+
+  addTab(): Promise<Tab> {
+    const url = `${environment.serverAddress}/api/tab`;
+
+    const emptyTab = new Tab();
+    const body = {
+      artist: emptyTab.artist,
+      song: emptyTab.song,
+      guitar: emptyTab.guitar,
+      bars: emptyTab.bars,
+      isPublic: emptyTab.isPublic,
+      userId: this._currentUser?.id,
+    };
+
+    return new Promise<Tab>((resolve, reject) => {
+      this.http.post<Tab>(url, body).subscribe({
+        next: (resTab: Tab) => {
+          const tab = Tab.fromObject(resTab);
+          this._currentUser?.tabs?.push(tab);
+
+          resolve(tab);
+        },
+        error: (error: HttpErrorResponse) => {
+          reject(error);
+        },
+      });
+    });
   }
 
   get token(): string | null {

@@ -1,7 +1,8 @@
 .container {
   display: flex;
   flex-direction: column;
-  background-color: #d2d2d2FF;
+  min-width: 800px;
+  max-width: 800px;
 }
 
 .titleContainer {
@@ -13,25 +14,16 @@
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  background-color: rgb(155, 155, 155);
+  flex-wrap: wrap;
 }
 
-.newTabContainer {
-  float: right;
-  display: list-item;
+.newTabButtonContainer {
+  display: flex;
+  justify-content: flex-end;
 }
 
-.tabContainer {
-  cursor: pointer;
-  width: 33%;
-  max-width: 33%;
-  margin: 5px 5px 5px 5px;
-  text-align: center;
-}
-
-.userContainer {
-  flex: 1;
-  background-color: yellow;
+#addButton {
+  right: 30px;
 }
 
 /* .user-class {

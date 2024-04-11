@@ -5,7 +5,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { PasswordValidator } from 'src/app/_shared/validators/password.validator';
 import { Signup } from 'src/app/_models/signup';
 import { User } from 'src/app/_models/user';
-import { AuthService } from 'src/app/_services/auth.service';
+import { CurrentUserService } from 'src/app/_services/current-user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -18,7 +18,7 @@ export class SignUpComponent implements OnInit {
     private snackBar: MatSnackBar,
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private currentUserService: CurrentUserService
   ) {
     this.signupData = new Signup();
   }
@@ -47,7 +47,7 @@ export class SignUpComponent implements OnInit {
   ngOnInit(): void {}
 
   onSignUpClick() {
-    this.authService.signup(this.signupData).then(
+    this.currentUserService.signup(this.signupData).then(
       (user: User) => {
         this.router.navigateByUrl(`user/${user.id}`);
       },

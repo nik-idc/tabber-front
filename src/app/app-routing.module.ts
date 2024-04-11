@@ -26,6 +26,10 @@ const routes: Routes = [
     // canActivate: [canActivateUser],
     resolve: { user: userResolver },
   },
+  {
+    path: 'tab/:id',
+    component: TabComponent,
+  },
 ];
 
 @NgModule({

@@ -9,7 +9,9 @@
     </div>
   </div>
 
-  <div class="userContainer">Username: {{ user?.username }}</div>
+  <div class="userContainer">
+    <app-user-data [user]="user"></app-user-data>
+  </div>
 </div>
 
 <!-- <div>

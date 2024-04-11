@@ -26,7 +26,28 @@ export class UserService {
           this._user.tabs.push(
             new Tab(3, 'While She Sleeps', 'Silence Speaks')
           );
-          
+          this._user.tabs.push(
+            new Tab(
+              4,
+              'Loathe',
+              'Heavy Is The Head That Falls With The Weight Of A Thousand Words'
+            )
+          );
+          this._user.tabs.push(
+            new Tab(
+              4,
+              'Loathe',
+              'Heavy Is The Head That Falls With The Weight Of A Thousand Words'
+            )
+          );
+          this._user.tabs.push(
+            new Tab(
+              4,
+              'Loathe',
+              'Heavy Is The Head That Falls With The Weight Of A Thousand Words'
+            )
+          );
+
           resolve(res);
         },
         error: (error: HttpErrorResponse) => {

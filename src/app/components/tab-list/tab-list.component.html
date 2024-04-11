@@ -9,4 +9,10 @@
       [canEdit]="canEdit"
     ></app-tab-card>
   </div>
+
+  <div *ngIf="canEdit" class="newTabButtonContainer">
+    <button id="addButton" mat-fab (click)="onAddClicked()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
 </div>
