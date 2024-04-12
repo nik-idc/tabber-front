@@ -9,12 +9,10 @@ import { CurrentUserService } from '../_services/current-user.service';
 
 export const canActivateAuth: CanActivateFn = (
   route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
+  state: RouterStateSnapshot,
 ) => {
-  console.log(route);
   const currentUserService = inject(CurrentUserService);
 
-  console.log(currentUserService.loggedIn);
   if (!currentUserService.loggedIn) {
     inject(Router).navigate(['info']);
   } else {

@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { User } from '../_models/user';
 import { Tab } from '../_models/tab/tab';
 import { environment } from 'src/environments/environment';
+import { LoggingService } from './logging.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,10 @@ import { environment } from 'src/environments/environment';
 export class UserService {
   private _user: User | undefined = undefined;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private loggingService: LoggingService
+  ) {}
 
   getUser(id: string | number): Promise<User> {
     const url = `${environment.serverAddress}/api/user/${id}`;
@@ -19,35 +23,6 @@ export class UserService {
       this.http.get<User>(url).subscribe({
         next: (res: User) => {
           this._user = User.fromObject(res);
-
-          this._user.tabs = [];
-          this._user.tabs.push(new Tab(1, 'Frank Ocean', 'Nights'));
-          this._user.tabs.push(new Tab(2, 'Frank Ocean', 'Solo'));
-          this._user.tabs.push(
-            new Tab(3, 'While She Sleeps', 'Silence Speaks')
-          );
-          this._user.tabs.push(
-            new Tab(
-              4,
-              'Loathe',
-              'Heavy Is The Head That Falls With The Weight Of A Thousand Words'
-            )
-          );
-          this._user.tabs.push(
-            new Tab(
-              4,
-              'Loathe',
-              'Heavy Is The Head That Falls With The Weight Of A Thousand Words'
-            )
-          );
-          this._user.tabs.push(
-            new Tab(
-              4,
-              'Loathe',
-              'Heavy Is The Head That Falls With The Weight Of A Thousand Words'
-            )
-          );
-
           resolve(res);
         },
         error: (error: HttpErrorResponse) => {

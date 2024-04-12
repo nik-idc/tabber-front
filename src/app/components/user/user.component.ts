@@ -8,6 +8,7 @@ import { TabService } from 'src/app/_services/tab.service';
 import { CurrentUserService } from 'src/app/_services/current-user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-user',
@@ -16,6 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class UserComponent implements OnInit {
   public selectedTab: Tab | undefined;
+  private _canEdit: boolean = false;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -23,17 +25,25 @@ export class UserComponent implements OnInit {
     private userService: UserService,
     private tabService: TabService,
     private dialog: MatDialog
-  ) {}
+  ) {
+    this._canEdit =
+      this.userService.user?.email ===
+      this.currentUserService.currentUser?.email;
+  }
 
   ngOnInit(): void {}
 
   onNameChanged(): void {}
 
+
+
   get user(): User | undefined {
-    return this.userService.user;
+    return this._canEdit
+      ? this.currentUserService.currentUser
+      : this.userService.user;
   }
 
-  get currentUser(): User | undefined {
-    return this.currentUserService.currentUser;
+  get canEdit(): boolean {
+    return this._canEdit;
   }
 }

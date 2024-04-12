@@ -3,7 +3,7 @@
     <div class="allTabsContainer">
       <app-tab-list
         [tabs]="user?.tabs"
-        [canEdit]="currentUser?.email === user?.email"
+        [canEdit]="canEdit"
         [title]="'Tabs'"
       ></app-tab-list>
     </div>

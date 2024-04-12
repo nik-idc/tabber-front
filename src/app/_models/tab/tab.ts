@@ -15,17 +15,17 @@ export class Tab {
 
   constructor(
     id: number | undefined = undefined,
-    artist: string = '',
-    song: string = '',
+    artist: string = 'Unknown artist',
+    song: string = 'Unknown song',
     guitar: Guitar = new Guitar(),
     bars: Bar[] | undefined = undefined,
-	isPublic: boolean = false
+    isPublic: boolean = false
   ) {
     this.id = id;
     this.artist = artist;
     this.song = song;
     this.guitar = guitar;
-	this.isPublic = isPublic;
+    this.isPublic = isPublic;
 
     if (bars) {
       this.bars = bars;
@@ -50,6 +50,10 @@ export class Tab {
     ) {
       throw new Error('Invalid js obj to parse to tab');
     }
+
+    obj.guitar =
+      typeof obj.guitar === 'string' ? JSON.parse(obj.guitar) : obj.guitar;
+    obj.bars = typeof obj.bars === 'string' ? JSON.parse(obj.bars) : obj.bars;
 
     let guitar = Guitar.fromObject(obj.guitar); // Parse guitar
     let tab = new Tab(obj.id, obj.artist, obj.song, guitar); // Create tab instance
