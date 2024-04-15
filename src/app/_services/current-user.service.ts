@@ -1,14 +1,15 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { User } from '../_models/user';
 import { Signin } from '../_models/login';
 import { environment } from 'src/environments/environment';
 import { Signup } from '../_models/signup';
+import { Tab } from '../_models/tab/tab';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class CurrentUserService {
   private _currentUser?: User = undefined;
 
   constructor(private http: HttpClient) {
@@ -28,6 +29,7 @@ export class AuthService {
       id: this._currentUser?.id,
       username: this._currentUser?.username,
       email: this._currentUser?.email,
+      createdAt: this._currentUser?.createdAt,
     });
 
     localStorage.setItem('currentUser', currentUserString);
@@ -94,6 +96,84 @@ export class AuthService {
   signout(): void {
     this._currentUser = undefined;
     localStorage.removeItem('currentUser');
+  }
+
+  getTabs(): Promise<Tab[]> {
+    const url = `${environment.serverAddress}/api/user/${this._currentUser?.id}/tabs`;
+
+    return new Promise<Tab[]>((resolve, reject) => {
+      this.http.get(url).subscribe({
+        next: (resTabs: any) => {
+          const tabs = [];
+          for (const tab of resTabs) {
+            tabs.push(Tab.fromObject(tab));
+          }
+
+          if (this._currentUser) {
+            this._currentUser.tabs = tabs;
+          }
+
+          resolve(tabs);
+        },
+        error: (error: HttpErrorResponse) => {
+          reject(error);
+        },
+      });
+    });
+  }
+
+  addTab(): Promise<Tab> {
+    const url = `${environment.serverAddress}/api/tab`;
+
+    const emptyTab = new Tab();
+    const body = {
+      artist: emptyTab.artist,
+      song: emptyTab.song,
+      guitar: JSON.stringify(emptyTab.guitar),
+      bars: JSON.stringify(emptyTab.bars),
+      isPublic: emptyTab.isPublic,
+      userId: this._currentUser?.id,
+    };
+
+    return new Promise<Tab>((resolve, reject) => {
+      this.http.post<Tab>(url, body).subscribe({
+        next: (resTab: Tab) => {
+          const tab = Tab.fromObject(resTab);
+          this._currentUser?.tabs?.push(tab);
+
+          resolve(tab);
+        },
+        error: (error: HttpErrorResponse) => {
+          reject(error);
+        },
+      });
+    });
+  }
+
+  editTab(tabId: string | number): void {
+    throw new Error('Method not implemented.');
+  }
+
+  deleteTab(tabId: string | number) {
+    const url = `${environment.serverAddress}/api/tab/${tabId}`;
+
+    return new Promise<void>((resolve, reject) => {
+      this.http.delete(url).subscribe({
+        next: (next: any) => {
+          if (this._currentUser) {
+            const newTabs = this._currentUser?.tabs?.filter(
+              (tab) => tab.id !== tabId
+            );
+            this._currentUser.tabs = newTabs;
+          }
+
+          resolve();
+        },
+        error: (error: HttpErrorResponse) => {
+          reject(error);
+        },
+      });
+    });
   }
 
   get token(): string | null {

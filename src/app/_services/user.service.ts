@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { User } from '../_models/user';
 import { Tab } from '../_models/tab/tab';
 import { environment } from 'src/environments/environment';
+import { LoggingService } from './logging.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,10 @@ import { environment } from 'src/environments/environment';
 export class UserService {
   private _user: User | undefined = undefined;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private loggingService: LoggingService
+  ) {}
 
   getUser(id: string | number): Promise<User> {
     const url = `${environment.serverAddress}/api/user/${id}`;
@@ -104,7 +108,7 @@ export class UserService {
             const tabIndex = this._user.tabs?.findIndex((tab) => {
               return tab.id === tabId;
             });
-            
+
             if (tabIndex) {
               this._user.tabs?.splice(tabIndex, 1);
             }

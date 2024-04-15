@@ -5,20 +5,19 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { AuthService } from '../_services/auth.service';
+import { CurrentUserService } from '../_services/current-user.service';
 
 export const canActivateAuth: CanActivateFn = (
   route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
+  state: RouterStateSnapshot,
 ) => {
-  const authService = inject(AuthService);
+  const currentUserService = inject(CurrentUserService);
 
-  console.log(authService.loggedIn);
-  if (!authService.loggedIn) {
+  if (!currentUserService.loggedIn) {
     inject(Router).navigate(['info']);
   } else {
-    inject(Router).navigate(['user', authService.currentUser?.id]);
+    inject(Router).navigate(['user', currentUserService.currentUser?.id]);
   }
 
-  return authService.loggedIn;
+  return currentUserService.loggedIn;
 };

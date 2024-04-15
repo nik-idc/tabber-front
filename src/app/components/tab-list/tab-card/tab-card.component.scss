@@ -1,0 +1,39 @@
+a {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
+
+mat-card {
+  text-align: center;
+
+  min-width: 200px;
+  max-width: 200px;
+}
+
+mat-card:hover {
+  cursor: pointer;
+  background-color: darken($color: #ffffff, $amount: 5);
+}
+
+mat-card-title {
+  min-height: 50px;
+  max-height: 50px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+mat-card-subtitle {
+  min-height: 50px;
+  max-height: 50px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabCardContainer {
+  margin: 5px;
+  display: flex;
+  flex-direction: column;
+}

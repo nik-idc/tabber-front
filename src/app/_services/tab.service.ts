@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Tab } from '../_models/tab/tab';
 import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
+import { CurrentUserService } from './current-user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 export class TabService {
   private _tab: Tab = new Tab();
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private currentUserService: CurrentUserService) {}
 
   loadTab(tabId: string | number): Promise<Tab> {
     const url = `${environment.serverAddress}/api/tab/${tabId}`;
@@ -36,7 +36,7 @@ export class TabService {
       guitar: this._tab?.guitar,
       bars: this._tab?.bars,
       isPublic: this._tab?.isPublic,
-      userId: this.authService.currentUser?.id,
+      userId: this.currentUserService.currentUser?.id,
     };
 
     return new Promise<Tab>((resolve, reject) => {

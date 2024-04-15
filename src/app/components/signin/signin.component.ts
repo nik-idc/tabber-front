@@ -4,21 +4,21 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { UserService } from 'src/app/_services/user.service';
 import { User } from 'src/app/_models/user';
 import { Signin } from 'src/app/_models/login';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from 'src/app/_services/auth.service';
+import { CurrentUserService } from 'src/app/_services/current-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-sign-in',
   templateUrl: './signin.component.html',
-  styleUrls: ['./signin.component.css'],
+  styleUrls: ['./signin.component.scss'],
 })
 export class SignInComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar,
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private currentUserService: CurrentUserService
   ) {
     this.signinData = new Signin();
   }
@@ -41,7 +41,7 @@ export class SignInComponent implements OnInit {
   ngOnInit(): void {}
 
   onSignInClick() {
-    this.authService.signin(this.signinData).then(
+    this.currentUserService.signin(this.signinData).then(
       (user: User) => {
         this.router.navigateByUrl(`user/${user.id}`);
       },

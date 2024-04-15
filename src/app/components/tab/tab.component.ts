@@ -23,14 +23,14 @@ import { KeyChecker } from 'src/app/_shared/key-checker/key-checker';
 import { FormBuilder } from '@angular/forms';
 import { UserService } from 'src/app/_services/user.service';
 import { TabService } from 'src/app/_services/tab.service';
-import { AuthService } from 'src/app/_services/auth.service';
+import { CurrentUserService } from 'src/app/_services/current-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-tab',
   templateUrl: './tab.component.html',
-  styleUrls: ['./tab.component.css'],
+  styleUrls: ['./tab.component.scss'],
 })
 export class TabComponent implements OnInit, OnChanges {
   newTab: boolean = true;
@@ -54,7 +54,7 @@ export class TabComponent implements OnInit, OnChanges {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService,
+    private currentUserService: CurrentUserService,
     private tabService: TabService,
     private snackBar: MatSnackBar,
     private formBuilder: FormBuilder
