@@ -4,14 +4,14 @@
 			<mat-form-field appearance="fill">
 				<mat-label>Artist:</mat-label>
 				<input matInput formControlName="artist" type="text" class="form-control"
-					[(ngModel)]="tabWindow.tab.artist">
+					[(ngModel)]="tab.artist">
 			</mat-form-field>
 		</div>
 		<div class="form-group">
 			<mat-form-field appearance="fill">
 				<mat-label>Song:</mat-label>
 				<input matInput formControlName="song" type="text" class="form-control"
-					[(ngModel)]="tabWindow.tab.song">
+					[(ngModel)]="tab.song">
 			</mat-form-field>
 		</div>
 		<div class="form-group">
@@ -21,127 +21,4 @@
 
 </div>
 
-<div *ngIf="tabWindow" class="tab-div" tabindex="0" (keydown.control.delete)="onTabCtrlDel()"
-	(keydown)="onTabKeyDown($event)">
-
-	<div class="tab-controls">
-		<div class="note-controls">
-			<button mat-button *ngFor="let duration of [1, 2, 4, 8, 16, 32]"
-				(click)="onNoteDurationClick(1 / duration)">
-				<img class="note-svg" [attr.src]="'../../../assets/img/notes/' + duration + '.svg'">
-			</button>
-		</div>
-		<div class="play-controls">
-			<button mat-button><mat-icon>play_arrow</mat-icon></button>
-		</div>
-		<div class="rhythm-controls">
-			<table cellspacing="0" *ngIf="tabWindow.selectedNoteElement">
-				<tr>
-					<td>
-						<mat-label>Beats</mat-label>
-						<input type="number" min="1" max="32"
-							[ngModel]="tabWindow.selectedNoteElement.chordElement.barElement.bar.beats"
-							(ngModelChange)="onBeatsChanged($event)">
-					</td>
-					<td>
-						<mat-label>Duration</mat-label>
-						<select [ngModel]="1 / tabWindow.selectedNoteElement.chordElement.barElement.bar.duration"
-							(ngModelChange)="onDurationChanged($event)">
-							<option *ngFor="let duration of [1, 2, 4, 8, 16, 32]">
-								{{duration}}
-							</option>
-						</select>
-					</td>
-					<td>
-						<mat-label>Tempo</mat-label>
-						<input type="number" min="1" max="400"
-							[ngModel]="tabWindow.selectedNoteElement.chordElement.barElement.bar.tempo"
-							(ngModelChange)="onTempoChanged($event)">
-					</td>
-				</tr>
-			</table>
-		</div>
-	</div>
-
-	<svg *ngFor="let barsLine of tabWindow.barsLines;" [attr.width]="tabWindow.dim.svgLineWidth"
-		[attr.height]="tabWindow.dim.svgLineHeight" class="tab-svg">
-
-		<g [attr.transform]="'translate(' + tabWindow.dim.xOffset + ',' + tabWindow.dim.yOffset + ')'">
-
-			<path [attr.d]="tabWindow.linesPath" stroke="black" />
-
-			<g *ngFor="let barId of barsLine;">
-
-				<rect [attr.x]="tabWindow.barElements[barId].rect.x" [attr.y]="tabWindow.barElements[barId].rect.y"
-					[attr.width]="tabWindow.barElements[barId].rect.width"
-					[attr.height]="tabWindow.barElements[barId].rect.height"
-					[attr.class]="tabWindow.barElements[barId].durationsFit ? 'tab-bar' : 'tab-bar-dur-mismatch'" />
-
-				<g *ngIf="tabWindow.barElements[barId].showMeasure">
-					<text [attr.x]="tabWindow.barElements[barId].measureBeatsCoords.x"
-						[attr.y]="tabWindow.barElements[barId].measureBeatsCoords.y"
-						[attr.width]="tabWindow.barElements[barId].measureRect.width"
-						[attr.height]="tabWindow.barElements[barId].measureRect.height" class="measure-beats-text">
-						{{tabWindow.barElements[barId].bar.beats}}
-					</text>
-
-					<text [attr.x]="tabWindow.barElements[barId].measureDurationCoords.x"
-						[attr.y]="tabWindow.barElements[barId].measureDurationCoords.y"
-						[attr.width]="tabWindow.barElements[barId].measureRect.width"
-						[attr.height]="tabWindow.barElements[barId].measureRect.height" class="measure-duration-text">
-						{{1 / tabWindow.barElements[barId].bar.duration}}
-					</text>
-				</g>
-
-				<text *ngIf="tabWindow.barElements[barId].showTempo"
-					[attr.x]="tabWindow.barElements[barId].tempoCoords.x"
-					[attr.y]="tabWindow.barElements[barId].tempoCoords.y">
-					Tempo: {{tabWindow.barElements[barId].bar.tempo}}
-				</text>
-
-				<rect [attr.x]="tabWindow.barElements[barId].prependRect.x"
-					[attr.y]="tabWindow.barElements[barId].prependRect.y"
-					[attr.width]="tabWindow.barElements[barId].prependRect.width"
-					[attr.height]="tabWindow.barElements[barId].prependRect.height"
-					(click)="onPrependChordClick(tabWindow.barElements[barId])" class="prepend-bar-rect" />
-
-				<g *ngFor="let chordElement of tabWindow.barElements[barId].chordElements; let chordElementId = index">
-
-					<g *ngFor="let noteElement of chordElement.noteElements; let noteElementId = index"
-						(click)="onNoteClick(noteElement)">
-
-						<image [attr.x]="chordElement.durationRect.x" [attr.y]="chordElement.durationRect.y"
-							[attr.width]="chordElement.durationRect.width"
-							[attr.height]="chordElement.durationRect.height"
-							[attr.href]="'../../../assets/img/notes/' + 1 / chordElement.chord.duration + '.svg'" />
-
-						<rect [attr.x]="noteElement.rect.x" [attr.y]="noteElement.rect.y"
-							[attr.width]="noteElement.rect.width" [attr.height]="noteElement.rect.height"
-							class="note-select-rect" />
-
-						<text *ngIf="noteElement == tabWindow.selectedNoteElement" [attr.x]="noteElement.textCoords.x"
-							[attr.y]="noteElement.textCoords.y" class="note-text-selected">
-							{{noteElement.note.fret ? '|' + noteElement.note.fret + '|' : '|-|'}}
-						</text>
-
-						<text *ngIf="noteElement != tabWindow.selectedNoteElement" [attr.x]="noteElement.textCoords.x"
-							[attr.y]="noteElement.textCoords.y" class="note-text">
-							{{noteElement.note.fret}}
-						</text>
-					</g>
-
-				</g>
-
-				<rect [attr.x]="tabWindow.barElements[barId].appendRect.x"
-					[attr.y]="tabWindow.barElements[barId].appendRect.y"
-					[attr.width]="tabWindow.barElements[barId].appendRect.width"
-					[attr.height]="tabWindow.barElements[barId].appendRect.height"
-					(click)="onAppendChordClick(tabWindow.barElements[barId])" class="append-bar-rect" />
-
-			</g>
-
-		</g>
-
-	</svg>
-
-</div>
+<app-tab-editor [tab]="tab">

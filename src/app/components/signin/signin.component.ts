@@ -18,9 +18,13 @@ export class SignInComponent implements OnInit {
     private snackBar: MatSnackBar,
     private formBuilder: FormBuilder,
     private router: Router,
-    private currentUserService: CurrentUserService
+    public currentUserService: CurrentUserService
   ) {
     this.signinData = new Signin();
+    
+    if (this.currentUserService.loggedIn) {
+      this.router.navigate(['user', this.currentUserService.currentUser?.id]);
+    }
   }
 
   public signinData: Signin;

@@ -4,7 +4,7 @@ import { User } from '../_models/user';
 import { Signin } from '../_models/login';
 import { environment } from 'src/environments/environment';
 import { Signup } from '../_models/signup';
-import { Tab } from '../_models/tab/tab';
+import { Tab } from '@atikincode/tabui/dist/models/tab';
 
 @Injectable({
   providedIn: 'root',
@@ -106,6 +106,7 @@ export class CurrentUserService {
         next: (resTabs: any) => {
           const tabs = [];
           for (const tab of resTabs) {
+            console.log(tab);
             tabs.push(Tab.fromObject(tab));
           }
 
@@ -128,9 +129,10 @@ export class CurrentUserService {
     const emptyTab = new Tab();
     const body = {
       artist: emptyTab.artist,
+      name: emptyTab.name,
       song: emptyTab.song,
       guitar: JSON.stringify(emptyTab.guitar),
-      bars: JSON.stringify(emptyTab.bars),
+      data: JSON.stringify(emptyTab),
       isPublic: emptyTab.isPublic,
       userId: this._currentUser?.id,
     };

@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Tab } from 'src/app/_models/tab/tab';
+import { Tab } from '@atikincode/tabui/dist/index';
 import { CurrentUserService } from 'src/app/_services/current-user.service';
 
 @Component({

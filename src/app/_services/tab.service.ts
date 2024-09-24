@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Tab } from '../_models/tab/tab';
+import { Tab } from '@atikincode/tabui/dist/models/tab';
 import { environment } from 'src/environments/environment';
 import { CurrentUserService } from './current-user.service';
 
@@ -10,7 +10,10 @@ import { CurrentUserService } from './current-user.service';
 export class TabService {
   private _tab: Tab = new Tab();
 
-  constructor(private http: HttpClient, private currentUserService: CurrentUserService) {}
+  constructor(
+    private http: HttpClient,
+    private currentUserService: CurrentUserService
+  ) {}
 
   loadTab(tabId: string | number): Promise<Tab> {
     const url = `${environment.serverAddress}/api/tab/${tabId}`;

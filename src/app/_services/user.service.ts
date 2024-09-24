@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { User } from '../_models/user';
-import { Tab } from '../_models/tab/tab';
+import { Tab } from '@atikincode/tabui/dist/models/tab';
 import { environment } from 'src/environments/environment';
 import { LoggingService } from './logging.service';
 

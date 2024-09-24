@@ -20,6 +20,7 @@ import { ConfirmDeleteDialogComponent } from './components/dialogs/confirm-delet
 import { InfoComponent } from './components/info/info.component';
 import { TabListComponent } from './components/tab-list/tab-list.component';
 import { TabCardComponent } from './components/tab-list/tab-card/tab-card.component';
+import { TabEditorComponent } from './components/tab/tab-editor/tab-editor.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @NgModule({
@@ -35,6 +36,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     InfoComponent,
     TabListComponent,
     TabCardComponent,
+    TabEditorComponent
   ],
   imports: [
     BrowserModule,

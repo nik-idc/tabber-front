@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild, Inject } from '@angular/core';
-import { Tab } from 'src/app/_models/tab/tab';
+import { Tab } from '@atikincode/tabui/dist/index';
 import { User } from 'src/app/_models/user';
 import { UserService } from 'src/app/_services/user.service';
 import { ConfirmDeleteDialogComponent } from '../dialogs/confirm-delete-dialog/confirm-delete-dialog.component';

@@ -1,0 +1,253 @@
+<div
+  *ngIf="tabWindow"
+  class="tab-div"
+  tabindex="0"
+  (keydown.control.delete)="onTabCtrlDel()"
+  (keydown)="onTabKeyDown($event)"
+>
+  <div class="tab-controls">
+    <div class="note-controls">
+      <button
+        mat-button
+        *ngFor="let duration of [1, 2, 4, 8, 16, 32]"
+        (click)="onNoteDurationClick(1 / duration)"
+      >
+        <img
+          class="note-svg"
+          [attr.src]="'../../../assets/img/notes/' + duration + '.svg'"
+        />
+      </button>
+    </div>
+    <div class="play-controls">
+      <button mat-button><mat-icon>play_arrow</mat-icon></button>
+    </div>
+    <div class="rhythm-controls">
+      <table cellspacing="0" *ngIf="tabWindow.selectedElement">
+        <tr>
+          <td>
+            <mat-label>Beats</mat-label>
+            <input
+              type="number"
+              min="1"
+              max="32"
+              [ngModel]="tabWindow.selectedElement.barElement.bar.beats"
+              (ngModelChange)="onBeatsChanged($event)"
+            />
+          </td>
+          <td>
+            <mat-label>Duration</mat-label>
+            <select
+              [ngModel]="1 / tabWindow.selectedElement.barElement.bar.duration"
+              (ngModelChange)="onDurationChanged($event)"
+            >
+              <option *ngFor="let duration of [1, 2, 4, 8, 16, 32]">
+                {{ duration }}
+              </option>
+            </select>
+          </td>
+          <td>
+            <mat-label>Tempo</mat-label>
+            <input
+              type="number"
+              min="1"
+              max="400"
+              [ngModel]="tabWindow.selectedElement.barElement.bar.tempo"
+              (ngModelChange)="onTempoChanged($event)"
+            />
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <svg
+    [attr.width]="tabWindow.dim.width"
+    [attr.height]="
+      tabWindow.dim.tabLineHeight * tabWindow.barElementLines.length
+    "
+    class="tab-svg"
+  >
+    <g
+      *ngFor="
+        let barElementLine of tabWindow.barElementLines;
+        let barElementLineId = index
+      "
+    >
+      <g *ngFor="let barElement of barElementLine; let barElementId = index">
+        <line
+          [attr.x1]="barElement.barLeftBorderLine[0].x"
+          [attr.y1]="barElement.barLeftBorderLine[0].y"
+          [attr.x2]="barElement.barLeftBorderLine[1].x"
+          [attr.y2]="barElement.barLeftBorderLine[1].y"
+          class="bar-line"
+        />
+
+        <line
+          *ngFor="let line of barElement.lines"
+          [attr.x1]="line[0].x"
+          [attr.y1]="line[0].y"
+          [attr.x2]="line[1].x"
+          [attr.y2]="line[1].y"
+          [ngClass]="{
+            'bar-line': barElement.durationsFit(),
+            'error-bar-line': !barElement.durationsFit()
+          }"
+        />
+
+        <g *ngIf="barElement.showSignature">
+          <text
+            [attr.x]="barElement.beatsTextCoords.x"
+            [attr.y]="barElement.beatsTextCoords.y"
+            [attr.font-size]="tabWindow.dim.timeSigTextSize"
+          >
+            {{ barElement.bar.beats }}
+          </text>
+
+          <text
+            [attr.x]="barElement.measureTextCoords.x"
+            [attr.y]="barElement.measureTextCoords.y"
+            [attr.font-size]="tabWindow.dim.timeSigTextSize"
+          >
+            {{ 1 / barElement.bar.duration }}
+          </text>
+        </g>
+
+        <g *ngIf="barElement.showTempo">
+          <image
+            [attr.x]="barElement.tempoImageRect.x"
+            [attr.y]="barElement.tempoImageRect.y"
+            [attr.width]="barElement.tempoImageRect.width"
+            [attr.height]="barElement.tempoImageRect.height"
+            href="./assets/img/notes/4.svg"
+          />
+
+          <text
+            [attr.x]="barElement.tempoTextCoords.x"
+            [attr.y]="barElement.tempoTextCoords.y"
+            [attr.font-size]="tabWindow.dim.tempoTextSize"
+            text-anchor="start"
+          >
+            = {{ barElement.bar.tempo }}
+          </text>
+        </g>
+
+        <g
+          *ngFor="
+            let chordElement of barElement.chordElements;
+            let chordElementId = index
+          "
+          (mousedown)="
+            onChordMouseDown(barElementLineId, barElementId, chordElementId)
+          "
+          (mouseenter)="
+            onChordMouseEnter(barElementLineId, barElementId, chordElementId)
+          "
+          (mouseleave)="
+            onChordMouseLeave(barElementLineId, barElementId, chordElementId)
+          "
+          (mousemove)="
+            onChordMouseMove(
+              $event,
+              barElementLineId,
+              barElementId,
+              chordElementId
+            )
+          "
+          (mouseup)="onChordMouseUp()"
+        >
+          <image
+            [attr.x]="chordElement.durationRect.x"
+            [attr.y]="chordElement.durationRect.y"
+            [attr.width]="chordElement.durationRect.width"
+            [attr.height]="chordElement.durationRect.height"
+            [attr.href]="
+              '../../../assets/img/notes/' +
+              1 / chordElement.chord.duration +
+              '.svg'
+            "
+          />
+
+          <g
+            *ngFor="
+              let noteElement of chordElement.noteElements;
+              let noteElementId = index
+            "
+            (click)="
+              onNoteClick(
+                barElementLineId,
+                barElementId,
+                chordElementId,
+                noteElementId
+              )
+            "
+          >
+            <rect
+              [attr.x]="noteElement.rect.x"
+              [attr.y]="noteElement.rect.y"
+              [attr.width]="noteElement.rect.width"
+              [attr.height]="noteElement.rect.height"
+              class="note-select-rect"
+            />
+
+            <g
+              *ngIf="
+                noteElement.note.fret ||
+                (tabWindow.selectedElement &&
+                  noteElement === tabWindow.selectedElement.noteElement)
+              "
+            >
+              <!-- class="note-text-rect" -->
+              <rect
+                [attr.x]="noteElement.textRect.x"
+                [attr.y]="noteElement.textRect.y"
+                [attr.width]="noteElement.textRect.width"
+                [attr.height]="noteElement.textRect.height"
+                [ngClass]="{
+                  'note-select-text-rect':
+                    tabWindow.selectedElement &&
+                    noteElement === tabWindow.selectedElement.noteElement,
+                  'note-text-rect': !(
+                    tabWindow.selectedElement &&
+                    noteElement === tabWindow.selectedElement.noteElement
+                  )
+                }"
+              />
+
+              <text
+                [attr.x]="noteElement.textCoords.x"
+                [attr.y]="noteElement.textCoords.y"
+                [attr.font-size]="noteElement.dim.noteTextSize"
+                class="note-text"
+              >
+                {{ noteElement.note.fret }}
+              </text>
+            </g>
+          </g>
+        </g>
+        <!-- <rect
+          *ngIf="chordElement.inSelection"
+          [attr.x]="chordElement.rect.x"
+          [attr.y]="chordElement.rect.y"
+          [attr.width]="chordElement.rect.width"
+          [attr.height]="chordElement.rect.height"
+          class="chord-selected"
+        /> -->
+        <line
+          [attr.x1]="barElement.barRightBorderLine[0].x"
+          [attr.y1]="barElement.barRightBorderLine[0].y"
+          [attr.x2]="barElement.barRightBorderLine[1].x"
+          [attr.y2]="barElement.barRightBorderLine[1].y"
+          class="bar-line"
+        />
+      </g>
+      <rect
+        *ngIf="tabWindow.selectionRects[barElementLineId]"
+        [attr.x]="tabWindow.selectionRects[barElementLineId]!.x"
+        [attr.y]="tabWindow.selectionRects[barElementLineId]!.y"
+        [attr.width]="tabWindow.selectionRects[barElementLineId]!.width"
+        [attr.height]="tabWindow.selectionRects[barElementLineId]!.height"
+        class="chord-selected"
+      />
+    </g>
+  </svg>
+</div>
