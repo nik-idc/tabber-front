@@ -1,4 +1,4 @@
-import { Tab } from './tab/tab';
+import { Tab } from '@atikincode/tabui/dist/models/tab';
 
 export class User {
   readonly id: number = 0;

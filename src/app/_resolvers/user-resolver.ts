@@ -6,8 +6,6 @@ import {
 } from '@angular/router';
 import { UserService } from '../_services/user.service';
 import { User } from '../_models/user';
-import { Tab } from '../_models/tab/tab';
-import { HttpErrorResponse } from '@angular/common/http';
 import { CurrentUserService } from '../_services/current-user.service';
 
 export const userResolver: ResolveFn<User | undefined> = async (

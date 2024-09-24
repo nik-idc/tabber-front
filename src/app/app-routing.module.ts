@@ -13,9 +13,9 @@ import { canActivateAuth } from './_guards/auth-guard';
 const routes: Routes = [
   {
     path: '',
-    canActivate: [canActivateAuth],
+    // canActivate: [canActivateAuth],
     pathMatch: 'full',
-    redirectTo: '',
+    redirectTo: 'signin',
   },
   { path: 'info', component: InfoComponent },
   { path: 'signin', component: SignInComponent },
@@ -23,7 +23,7 @@ const routes: Routes = [
   {
     path: 'user/:id',
     component: UserComponent,
-    // canActivate: [canActivateUser],
+    canActivate: [canActivateUser],
     resolve: { user: userResolver },
   },
   {
