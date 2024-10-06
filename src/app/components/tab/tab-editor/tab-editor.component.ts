@@ -1,11 +1,18 @@
 import {
   Component,
+  HostListener,
   Input,
   OnChanges,
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { Point, TabWindowDim } from '@atikincode/tabui/dist/index';
+import {
+  ChordElement,
+  NoteDuration,
+  Point,
+  SelectedElement,
+  TabWindowDim,
+} from '@atikincode/tabui/dist/index';
 import { TabWindow } from '@atikincode/tabui/dist/index';
 import { Tab } from '@atikincode/tabui/dist/index';
 import { BarElement } from '@atikincode/tabui/dist/index';
@@ -45,8 +52,9 @@ export class TabEditorComponent implements OnInit, OnChanges {
 
   // Selection variables
   private selectingChords: boolean = false;
-  private selectionStartDelayPx = 75;
   private selectionStartPoint: Point | undefined;
+
+  private copyingStarted: boolean = false;
 
   constructor(
     private userService: UserService,
@@ -133,7 +141,7 @@ export class TabEditorComponent implements OnInit, OnChanges {
     this.tabWindow.clearSelection();
     this.selectingChords = true;
     // this.tabWindow.selectChord(barElementsLineId, barElementId, chordElementId);
-    // console.log('onChordMouseDown');
+    console.log('onChordMouseDown');
   }
 
   onChordMouseEnter(
@@ -170,7 +178,6 @@ export class TabEditorComponent implements OnInit, OnChanges {
   ): void {
     if (this.selectingChords) {
       if (this.tabWindow.selectionElements.length === 0) {
-        const rectScale = 1;
         if (this.selectionStartPoint === undefined) {
           this.selectionStartPoint = new Point(event.pageX, event.pageY);
         } else {
@@ -178,7 +185,12 @@ export class TabEditorComponent implements OnInit, OnChanges {
           const dy = event.pageY - this.selectionStartPoint.y;
           const distMoved = Math.sqrt(dx * dx + dy * dy);
 
-          if (distMoved >= this.selectionStartDelayPx) {
+          const chordElement =
+            this.tabWindow.barElementLines[barElementLineId][barElementId]
+              .chordElements[chordElementId];
+          const rect = chordElement.rect;
+
+          if (distMoved >= rect.width / 4) {
             this.tabWindow.selectChord(
               barElementLineId,
               barElementId,
@@ -192,7 +204,25 @@ export class TabEditorComponent implements OnInit, OnChanges {
 
   onChordMouseUp(): void {
     this.selectingChords = false;
+    this.selectionStartPoint = undefined;
     // console.log('onChordMouseUp');
+  }
+
+  @HostListener('document:keydown.control.c', ['$event'])
+  ctrlCEvent(event: KeyboardEvent) {
+    this.copyingStarted = true;
+    this.tabWindow.copy();
+  }
+
+  @HostListener('document:keydown.control.v', ['$event'])
+  ctrlVEvent(event: KeyboardEvent) {
+    this.tabWindow.paste();
+    this.copyingStarted = false;
+  }
+
+  @HostListener('document:keydown.delete', ['$event'])
+  deleteEvent(event: KeyboardEvent) {
+    this.tabWindow.deleteChords();
   }
 
   onTabNumberDown(key: string): void {

@@ -191,7 +191,7 @@
 
             <g
               *ngIf="
-                noteElement.note.fret ||
+                noteElement.note.fret !== undefined ||
                 (tabWindow.selectedElement &&
                   noteElement === tabWindow.selectedElement.noteElement)
               "
