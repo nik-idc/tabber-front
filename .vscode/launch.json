@@ -4,7 +4,7 @@
   "configurations": [
     {
       "name": "Attach to Chrome",
-      "port": 4200,
+      "port": 62582,
       "request": "attach",
       "type": "chrome",
       "webRoot": "${workspaceFolder}"
@@ -13,14 +13,14 @@
       "name": "Launch Chrome",
       "request": "launch",
       "type": "chrome",
-      "url": "http://localhost:4200",
+      "url": "http://localhost:62582",
       "webRoot": "${workspaceFolder}"
     },
     {
       "name": "Launch Edge",
       "request": "launch",
       "type": "msedge",
-      "url": "http://localhost:4200",
+      "url": "http://localhost:62582",
       "webRoot": "${workspaceFolder}"
     },
     {
@@ -28,7 +28,7 @@
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
-      "url": "http://localhost:4200/"
+      "url": "http://localhost:62582/"
     },
     {
       "name": "ng test",
