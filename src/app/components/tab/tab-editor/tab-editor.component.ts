@@ -1,22 +1,27 @@
 import {
   Component,
+  EventEmitter,
   HostListener,
   Input,
   OnChanges,
   OnInit,
+  Sanitizer,
   SimpleChanges,
 } from '@angular/core';
 import {
-  ChordElement,
+  BeatElement,
   NoteDuration,
   Point,
+  Rect,
   SelectedElement,
+  TabPlayerSVGAnimator,
   TabWindowDim,
 } from '@atikincode/tabui/dist/index';
 import { TabWindow } from '@atikincode/tabui/dist/index';
 import { Tab } from '@atikincode/tabui/dist/index';
 import { BarElement } from '@atikincode/tabui/dist/index';
 import { NoteElement } from '@atikincode/tabui/dist/index';
+
 import { KeyChecker } from 'src/app/_shared/key-checker/key-checker';
 import { FormBuilder } from '@angular/forms';
 import { UserService } from 'src/app/_services/user.service';
@@ -26,6 +31,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { setThrowInvalidWriteToSignalError } from '@angular/core/primitives/signals';
 import { SelectionElement } from '@atikincode/tabui/dist/tab-window/elements/selection-element';
+import { TabLineElement } from '@atikincode/tabui/dist/tab-window/elements/tab-line-element';
+import { BeatNotesElement } from '@atikincode/tabui/dist/tab-window/elements/beat-notes-element';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { GuitarEffectType } from '@atikincode/tabui/dist/models/guitar-effect/guitar-effect-type';
+import { GuitarEffectOptions } from '@atikincode/tabui/dist/models/guitar-effect/guitar-effect-options';
+import { SelectedMoveDirection } from '@atikincode/tabui/dist/tab-window/elements/selected-element';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-tab-editor',
@@ -46,28 +58,38 @@ export class TabEditorComponent implements OnInit, OnChanges {
   );
 
   public tabWindow: TabWindow = new TabWindow(this.tab, this.tabLineDim);
+  public playerAnimator: TabPlayerSVGAnimator | undefined;
 
   private eventsTimeEpsilon: number = 250;
   private prevTabKeyPress: { time: number; key: string } | null = null;
 
   // Selection variables
-  private selectingChords: boolean = false;
+  private selectingBeats: boolean = false;
   private selectionStartPoint: Point | undefined;
 
-  private copyingStarted: boolean = false;
+  // private copyingStarted: boolean = false;
+  public isPlaying: boolean = false;
+
+  // Offsets
+  public tleOffset: Point = new Point();
+  public barOffset: Point = new Point();
+  public beatOffset: Point = new Point();
+  public beatNotesOffset: Point = new Point();
 
   constructor(
     private userService: UserService,
     private currentUserService: CurrentUserService,
     private tabService: TabService,
     private snackBar: MatSnackBar,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private sanitizer: DomSanitizer
   ) {}
 
   createTabWindow(): void {
     this.tab = this.tabService.tab;
     this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
-    this.tabWindow.calc();
+    this.tabWindow.selectNoteElementUsingIds(0, 0, 0, 0);
+
     console.log(this.tabWindow);
   }
 
@@ -78,106 +100,115 @@ export class TabEditorComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     // Create tab window
     this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
-    this.tabWindow.calc();
+    this.tabWindow.calcTabElement();
   }
 
   onNoteDurationClick(duration: number): void {
     // Check if any note is selected
-    if (!this.tabWindow.selectedElement) {
+    const selected = this.tabWindow.getSelectedElement();
+    const selectionBeats = this.tabWindow.getSelectionBeats();
+
+    if (selected === undefined && selectionBeats.length === 0) {
       return;
     }
 
-    this.tabWindow.changeSelectedChordDuration(duration);
+    if (selected !== undefined) {
+      this.tabWindow.changeSelectedBeatDuration(duration);
+    } else if (selectionBeats.length !== 0) {
+      this.tabWindow.changeSelectionDuration(duration);
+    }
   }
 
-  onBeatsChanged(beats: number) {
+  onBeatsChanged(event: MatSelectChange) {
     // Check if any note is selected
-    if (!this.tabWindow.selectedElement) {
+    if (!this.tabWindow.getSelectedElement()) {
       return;
     }
 
-    this.tabWindow.changeSelectedBarBeats(beats);
+    this.tabWindow.changeSelectedBarBeats(event.value);
   }
 
-  onDurationChanged(duration: number) {
+  onDurationChanged(event: MatSelectChange) {
     // Check if any note is selected
-    if (!this.tabWindow.selectedElement) {
+    if (!this.tabWindow.getSelectedElement()) {
       return;
     }
 
-    this.tabWindow.changeSelectedBarDuration(duration);
+    this.tabWindow.changeSelectedBarDuration(1 / event.value);
   }
 
-  onTempoChanged(tempo: number) {
+  onTempoChanged(event: Event) {
     // Check if any note is selected
-    if (!this.tabWindow.selectedElement) {
+    if (!this.tabWindow.getSelectedElement()) {
       return;
     }
 
-    this.tabWindow.changeSelectedBarTempo(tempo);
+    const target = event.target as HTMLTextAreaElement;
+    this.tabWindow.changeSelectedBarTempo(Number(target.value));
   }
 
   onNoteClick(
-    barElementLineId: number,
+    tabLineElementId: number,
     barElementId: number,
-    chordElementId: number,
+    beatElementId: number,
     noteElementId: number
   ): void {
-    this.tabWindow.selectNoteElement(
-      barElementLineId,
+    this.tabWindow.selectNoteElementUsingIds(
+      tabLineElementId,
       barElementId,
-      chordElementId,
+      beatElementId,
       noteElementId
     );
 
-    console.log(this.tabWindow.selectionElements);
+    // console.log(this.tabWindow.selectionManager.selectionElements);
   }
 
-  onChordMouseDown(
-    barElementLineId: number,
+  onBeatMouseDown(
+    tabLineElementId: number,
     barElementId: number,
-    chordElementId: number
+    beatElementId: number
   ): void {
     this.tabWindow.clearSelection();
-    this.selectingChords = true;
-    // this.tabWindow.selectChord(barElementsLineId, barElementId, chordElementId);
-    console.log('onChordMouseDown');
+    this.tabWindow.recalcBeatElementSelection();
+    this.selectingBeats = true;
+    // this.tabWindow.selectBeat(barElementsLineId, barElementId, beatElementId);
+    console.log('onBeatMouseDown');
   }
 
-  onChordMouseEnter(
-    barElementLineId: number,
+  onBeatMouseEnter(
+    tabLineElementId: number,
     barElementId: number,
-    chordElementId: number
+    beatElementId: number
   ): void {
-    if (this.selectingChords) {
-      this.tabWindow.selectChord(
-        barElementLineId,
+    if (this.selectingBeats) {
+      this.tabWindow.selectBeatUsingIds(
+        tabLineElementId,
         barElementId,
-        chordElementId
+        beatElementId
       );
     }
   }
 
-  onChordMouseLeave(
-    barElementLineId: number,
+  onBeatMouseLeave(
+    tabLineElementId: number,
     barElementId: number,
-    chordElementId: number
+    beatElementId: number
   ): void {
-    if (this.selectingChords) {
+    if (this.selectingBeats) {
       // console.log(
-      //   `L: ${barElementsLineId}, ${barElementId}, ${chordElementId}`
+      //   `L: ${barElementsLineId}, ${barElementId}, ${beatElementId}`
       // );
     }
   }
 
-  onChordMouseMove(
+  onBeatMouseMove(
     event: MouseEvent,
-    barElementLineId: number,
+    tabLineElementId: number,
     barElementId: number,
-    chordElementId: number
+    beatElementId: number
   ): void {
-    if (this.selectingChords) {
-      if (this.tabWindow.selectionElements.length === 0) {
+    if (this.selectingBeats) {
+      if (this.tabWindow.getSelectionBeats().length === 0) {
         if (this.selectionStartPoint === undefined) {
           this.selectionStartPoint = new Point(event.pageX, event.pageY);
         } else {
@@ -185,16 +216,18 @@ export class TabEditorComponent implements OnInit, OnChanges {
           const dy = event.pageY - this.selectionStartPoint.y;
           const distMoved = Math.sqrt(dx * dx + dy * dy);
 
-          const chordElement =
-            this.tabWindow.barElementLines[barElementLineId][barElementId]
-              .chordElements[chordElementId];
-          const rect = chordElement.rect;
+          const lines = this.tabWindow.getTabLineElements();
+          const beatElement =
+            lines[tabLineElementId].barElements[barElementId].beatElements[
+              beatElementId
+            ];
+          const rect = beatElement.rect;
 
           if (distMoved >= rect.width / 4) {
-            this.tabWindow.selectChord(
-              barElementLineId,
+            this.tabWindow.selectBeatUsingIds(
+              tabLineElementId,
               barElementId,
-              chordElementId
+              beatElementId
             );
           }
         }
@@ -202,32 +235,84 @@ export class TabEditorComponent implements OnInit, OnChanges {
     }
   }
 
-  onChordMouseUp(): void {
-    this.selectingChords = false;
+  onBeatMouseUp(): void {
+    this.selectingBeats = false;
     this.selectionStartPoint = undefined;
-    // console.log('onChordMouseUp');
   }
 
   @HostListener('document:keydown.control.c', ['$event'])
   ctrlCEvent(event: KeyboardEvent) {
-    this.copyingStarted = true;
+    // this.copyingStarted = true;
     this.tabWindow.copy();
   }
 
   @HostListener('document:keydown.control.v', ['$event'])
   ctrlVEvent(event: KeyboardEvent) {
+    // console.log(JSON.parse(JSON.stringify(this.tabWindow)));
     this.tabWindow.paste();
-    this.copyingStarted = false;
+    // console.log(JSON.parse(JSON.stringify(this.tabWindow)));
+    // this.copyingStarted = false;
+  }
+
+  @HostListener('document:keydown.control.z', ['$event'])
+  ctrlZEvent(event: KeyboardEvent) {
+    this.tabWindow.undo();
+  }
+
+  @HostListener('document:keydown.control.y', ['$event'])
+  ctrlYEvent(event: KeyboardEvent) {
+    this.tabWindow.redo();
   }
 
   @HostListener('document:keydown.delete', ['$event'])
   deleteEvent(event: KeyboardEvent) {
-    this.tabWindow.deleteChords();
+    this.tabWindow.deleteSelectedBeats();
+  }
+
+  private applyOrRemoveEffect(
+    effectType: GuitarEffectType,
+    options?: GuitarEffectOptions
+  ): void {
+    const selected = this.tabWindow.getSelectedElement();
+
+    if (selected !== undefined) {
+      const effectIndex = selected.note.effects.findIndex((e) => {
+        return e.effectType === effectType;
+      });
+
+      if (effectIndex === -1) {
+        console.log('APPLYING EFFECT');
+        const result = this.tabWindow.applyEffectSingle(effectType, options);
+        console.log(`APPLY RESULT: ${result}`);
+      } else {
+        this.tabWindow.removeEffectSingle(effectType, options);
+      }
+    }
+  }
+
+  @HostListener('document:keydown.shift.v', ['$event'])
+  shiftVEvent(event: KeyboardEvent) {
+    this.applyOrRemoveEffect(GuitarEffectType.Vibrato);
+  }
+
+  @HostListener('document:keydown.shift.p', ['$event'])
+  shiftPEvent(event: KeyboardEvent) {
+    this.applyOrRemoveEffect(GuitarEffectType.PalmMute);
+  }
+
+  @HostListener('document:keydown.shift.b', ['$event'])
+  shiftBEvent(event: KeyboardEvent) {
+    this.applyOrRemoveEffect(GuitarEffectType.Bend, new GuitarEffectOptions(1));
+  }
+
+  @HostListener('document:keydown.space', ['$event'])
+  spaceEvent(event: KeyboardEvent) {
+    this.onPlayClicked();
   }
 
   onTabNumberDown(key: string): void {
     // Check if any note is selected
-    if (!this.tabWindow.selectedElement) {
+    if (!this.tabWindow.getSelectedElement()) {
       return;
     }
 
@@ -240,7 +325,7 @@ export class TabEditorComponent implements OnInit, OnChanges {
     // Check if this is the first note click
     if (!this.prevTabKeyPress) {
       this.prevTabKeyPress = { time: new Date().getTime(), key: key };
-      this.tabWindow.changeSelectedNoteValue(newFret);
+      this.tabWindow.setSelectedElementFret(newFret);
       return;
     }
 
@@ -250,7 +335,7 @@ export class TabEditorComponent implements OnInit, OnChanges {
     let combFret = Number.parseInt(this.prevTabKeyPress.key + key);
     newFret = timeDiff < this.eventsTimeEpsilon ? combFret : newFret;
     // Set fret
-    this.tabWindow.changeSelectedNoteValue(newFret);
+    this.tabWindow.setSelectedElementFret(newFret);
 
     // Update prev tab key press object
     this.prevTabKeyPress.time = now;
@@ -259,40 +344,42 @@ export class TabEditorComponent implements OnInit, OnChanges {
 
   onArrowDown(key: string) {
     // Check if a note is selected
-    if (!this.tabWindow.selectedElement) {
+    if (!this.tabWindow.getSelectedElement()) {
       return;
     }
 
     switch (key) {
       case 'ArrowDown':
-        this.tabWindow.moveSelectedNoteDown();
+        this.tabWindow.moveSelectedNote(SelectedMoveDirection.Down);
         break;
       case 'ArrowUp':
-        this.tabWindow.moveSelectedNoteUp();
+        this.tabWindow.moveSelectedNote(SelectedMoveDirection.Up);
         break;
       case 'ArrowLeft':
-        this.tabWindow.moveSelectedNoteLeft();
+        this.tabWindow.moveSelectedNote(SelectedMoveDirection.Left);
         break;
       case 'ArrowRight':
-        this.tabWindow.moveSelectedNoteRight();
+        this.tabWindow.moveSelectedNote(SelectedMoveDirection.Right);
         break;
     }
   }
 
   onTabBackspacePress(): void {
-    if (!this.tabWindow.selectedElement) {
+    const selected = this.tabWindow.getSelectedElement();
+
+    if (!selected) {
       return;
     }
 
-    if (!this.tabWindow.selectedElement.noteElement.note.fret) {
+    if (!selected.note.fret) {
       return;
     }
 
-    this.tabWindow.selectedElement.noteElement.note.fret = undefined;
+    this.tabWindow.setSelectedElementFret(undefined);
   }
 
   onTabCtrlDel() {
-    // Delete selected note chord
+    // Delete selected note beat
   }
 
   onTabKeyDown(event: KeyboardEvent): void {
@@ -310,5 +397,113 @@ export class TabEditorComponent implements OnInit, OnChanges {
 
   editSquare(noteElement: NoteElement): string {
     return noteElement.note.fret ? '|' + noteElement.note.fret + '|' : '|-|';
+  }
+
+  public getTabWindowHeight(): number {
+    const lines = this.tabWindow.getTabLineElements();
+
+    let height = 0;
+    for (const tabLineElement of lines) {
+      height += tabLineElement.rect.height;
+    }
+
+    return height;
+  }
+
+  public setTabLineElementOffset(tabLineElement: TabLineElement): void {
+    this.tleOffset = new Point(0, tabLineElement.rect.y);
+  }
+
+  public setBarElementOffset(barElement: BarElement): void {
+    this.barOffset = new Point(barElement.rect.x, this.tleOffset.y);
+  }
+
+  public setBeatElementOffset(beatElement: BeatElement): void {
+    this.beatOffset = new Point(
+      this.barOffset.x + beatElement.rect.x,
+      this.barOffset.y + beatElement.rect.y
+    );
+  }
+
+  public setBeatNotesOffset(beatNotesElement: BeatNotesElement): void {
+    this.beatNotesOffset = new Point(
+      this.beatOffset.x + beatNotesElement.rect.x,
+      this.beatOffset.y + beatNotesElement.rect.y
+    );
+  }
+
+  public sanitizeSVG(svg: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(svg);
+  }
+
+  public getPlayerCursorRect(): Rect {
+    if (!this.isPlaying) {
+      return new Rect();
+    }
+
+    const currentBeatElement = this.tabWindow.getPlayerCurrentBeatElement();
+    if (currentBeatElement === undefined) {
+      return new Rect();
+    }
+
+    const beatElementCoords =
+      this.tabWindow.getBeatElementGlobalCoords(currentBeatElement);
+
+    const playerCursorWidth = 5;
+    const playerCursorAddHeight = 10;
+
+    return new Rect(
+      beatElementCoords.x + currentBeatElement.rect.width / 2,
+      beatElementCoords.y - playerCursorAddHeight,
+      playerCursorWidth,
+      currentBeatElement.rect.height + playerCursorAddHeight
+    );
+  }
+
+  private renderCursor(playerCursor: SVGRectElement): void {
+    const cursorRect = this.getPlayerCursorRect();
+    playerCursor.setAttribute('x', `${cursorRect.x}`);
+    playerCursor.setAttribute('y', `${cursorRect.y}`);
+    playerCursor.setAttribute('width', `${cursorRect.width}`);
+    playerCursor.setAttribute('height', `${cursorRect.height}`);
+  }
+
+  private setupPlayerAnimator(playerCursor: SVGRectElement): void {
+    if (!this.isPlaying) {
+      return;
+    }
+
+    this.renderCursor(playerCursor);
+
+    this.playerAnimator = new TabPlayerSVGAnimator(
+      playerCursor,
+      this.tabWindow
+    );
+    this.playerAnimator.bindToBeatChanged();
+  }
+
+  public onPlayClicked(): void {
+    const playerCursor = document.getElementById(
+      'playerCursor'
+    ) as SVGRectElement | null;
+    if (playerCursor === null) {
+      throw Error('Playing but no cursor SVG rect');
+    }
+
+    if (this.isPlaying) {
+      this.isPlaying = false;
+
+      this.renderCursor(playerCursor);
+      this.tabWindow.stopPlayer();
+    } else {
+      this.isPlaying = true;
+
+      if (this.playerAnimator === undefined) {
+        this.setupPlayerAnimator(playerCursor);
+      }
+
+      this.renderCursor(playerCursor);
+      this.tabWindow.startPlayer();
+    }
   }
 }

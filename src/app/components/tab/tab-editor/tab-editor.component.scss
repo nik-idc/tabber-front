@@ -61,7 +61,11 @@
   text-anchor: middle;
 }
 
-.chord-selected {
+.bar-settings-input {
+  width: 150px;
+}
+
+.selected-beat-rect {
   fill: var(--selection-color);
   // fill: blue;
   // fill-opacity: 0.25;
@@ -131,6 +135,7 @@
   display: flex;
   position: sticky;
   top: 0;
+  height: 75px;
 }
 
 .note-controls,
