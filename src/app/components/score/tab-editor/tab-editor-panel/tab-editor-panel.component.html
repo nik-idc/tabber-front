@@ -1,0 +1,91 @@
+<div class="note-controls">
+  <button
+    mat-button
+    *ngFor="let duration of [1, 2, 4, 8, 16, 32, 64]"
+    (click)="onNoteDurationClick(1 / duration)"
+  >
+    <img
+      class="note-svg"
+      [attr.src]="
+        '../../../assets/img/notes/' + DURATION_TO_NAME[1 / duration] + '.svg'
+      "
+      [attr.width]="20"
+      [attr.height]="20"
+    />
+  </button>
+</div>
+
+<mat-divider></mat-divider>
+
+<div class="rhythm-controls">
+  <button
+    mat-button
+    matTooltip="Time signature"
+    (click)="onTimeSigClicked($event)"
+  >
+    <mat-icon>hourglass_empty</mat-icon>
+  </button>
+  <button mat-button matTooltip="Tempo" (click)="onTempoClicked($event)">
+    <mat-icon>timer</mat-icon>
+  </button>
+
+  <!-- <table cellspacing="0">
+    <tr>
+      <td>
+        <mat-form-field class="bar-settings-input">
+          <mat-label>Bar beats</mat-label>
+          <mat-select
+            (selectionChange)="onBeatsChanged($event)"
+            [disabled]="tabWindow.getSelectedElement() === undefined"
+          >
+            <mat-option
+              *ngFor="
+                let beat of [
+                  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                  19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
+                ]
+              "
+              [value]="beat"
+            >
+              {{ beat }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </td>
+      <td>
+        <mat-form-field class="bar-settings-input">
+          <mat-label>Bar duration</mat-label>
+          <mat-select
+            (selectionChange)="onDurationChanged($event)"
+            [disabled]="tabWindow.getSelectedElement() === undefined"
+          >
+            <mat-option
+              *ngFor="let duration of [1, 2, 4, 8, 16, 32]"
+              [value]="duration"
+            >
+              {{ duration }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </td>
+      <td>
+        <mat-form-field class="bar-settings-input">
+          <mat-label>Tempo</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            max="400"
+            [disabled]="tabWindow.getSelectedElement() === undefined"
+            [value]="
+              tabWindow.getSelectedElement() !== undefined
+                ? tabWindow.getSelectedElement()!.bar.tempo
+                : undefined
+            "
+            (change)="onTempoChanged($event)"
+          />
+        </mat-form-field>
+      </td>
+    </tr>
+  </table> -->
+</div>

@@ -1,0 +1,72 @@
+<div class="tab-info">
+  <form [formGroup]="scoreInfoForm" (ngSubmit)="onSaveChangesClick()">
+    <div class="form-group">
+      <mat-form-field appearance="fill">
+        <mat-label>Name:</mat-label>
+        <input
+          matInput
+          formControlName="name"
+          type="text"
+          class="form-control"
+          [(ngModel)]="score.name"
+        />
+      </mat-form-field>
+    </div>
+    <div class="form-group">
+      <mat-form-field appearance="fill">
+        <mat-label>Artist:</mat-label>
+        <input
+          matInput
+          formControlName="artist"
+          type="text"
+          class="form-control"
+          [(ngModel)]="score.artist"
+        />
+      </mat-form-field>
+    </div>
+    <div class="form-group">
+      <mat-form-field appearance="fill">
+        <mat-label>Song:</mat-label>
+        <input
+          matInput
+          formControlName="song"
+          type="text"
+          class="form-control"
+          [(ngModel)]="score.song"
+        />
+      </mat-form-field>
+    </div>
+    <!-- <div class="form-group">
+      <mat-form-field appearance="fill">
+        <mat-label>Track</mat-label>
+        <mat-select>
+          <mat-option
+            *ngFor="let track of score.tracks; let trackIndex = index"
+            [value]="track.uuid"
+          >
+            Track {{ trackIndex + 1 }} - {{ track.instrumentName }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div> -->
+    <div class="form-group">
+      <button mat-stroked-button type="submit">Save Changes</button>
+    </div>
+  </form>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Track</mat-label>
+    <mat-select [(value)]="selectedTrackIndex">
+      <mat-option
+        *ngFor="let track of score.tracks; let trackIndex = index"
+        [value]="trackIndex"
+      >
+        Track {{ trackIndex + 1 }} - {{ track.instrumentName }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <p>{{ selectedTrackIndex }}</p>
+</div>
+
+<app-tab-editor [tabIndex]="selectedTrackIndex"></app-tab-editor>

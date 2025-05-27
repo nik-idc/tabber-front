@@ -4,11 +4,12 @@ import { SignInComponent } from './components/signin/signin.component';
 import { SignUpComponent } from './components/signup/signup.component';
 
 import { UserComponent } from './components/user/user.component';
-import { TabComponent } from './components/tab/tab.component';
+import { ScoreComponent } from './components/score/score.component';
 import { userResolver } from './_resolvers/user-resolver';
 import { canActivateUser } from './_guards/user-guard';
 import { InfoComponent } from './components/info/info.component';
 import { canActivateAuth } from './_guards/auth-guard';
+import { scoreResolver } from './_resolvers/score-resolver';
 
 const routes: Routes = [
   {
@@ -27,8 +28,9 @@ const routes: Routes = [
     resolve: { user: userResolver },
   },
   {
-    path: 'tab/:id',
-    component: TabComponent,
+    path: 'score/:id',
+    component: ScoreComponent,
+    resolve: { score: scoreResolver },
   },
 ];
 

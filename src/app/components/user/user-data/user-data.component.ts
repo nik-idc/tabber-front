@@ -14,7 +14,7 @@ export class UserDataComponent {
   constructor(private loggingService: LoggingService) {}
 
   prettyCreatedAtDate(): string {
-    this.loggingService.log(this.user);
+    // this.loggingService.log(this.user);
 
     if (this.user && this.user.createdAt) {
       return formatDate(this.user.createdAt, 'dd.MM.YYYY', 'en');

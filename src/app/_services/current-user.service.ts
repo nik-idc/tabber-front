@@ -4,7 +4,7 @@ import { User } from '../_models/user';
 import { Signin } from '../_models/login';
 import { environment } from 'src/environments/environment';
 import { Signup } from '../_models/signup';
-import { Tab } from '@atikincode/tabui/dist/models/tab';
+import { Score } from '@atikincode/tabui/dist/models/score';
 
 @Injectable({
   providedIn: 'root',
@@ -98,23 +98,23 @@ export class CurrentUserService {
     localStorage.removeItem('currentUser');
   }
 
-  getTabs(): Promise<Tab[]> {
-    const url = `${environment.serverAddress}/api/user/${this._currentUser?.id}/tabs`;
+  getScores(): Promise<Score[]> {
+    const url = `${environment.serverAddress}/api/user/${this._currentUser?.id}/score`;
 
-    return new Promise<Tab[]>((resolve, reject) => {
+    return new Promise<Score[]>((resolve, reject) => {
       this.http.get(url).subscribe({
-        next: (resTabs: any) => {
-          const tabs = [];
-          for (const tab of resTabs) {
-            console.log(tab);
-            tabs.push(Tab.fromObject(tab));
+        next: (resScores: any) => {
+          const scores = [];
+          for (const score of resScores) {
+            console.log(score);
+            scores.push(Score.fromObject(score));
           }
 
           if (this._currentUser) {
-            this._currentUser.tabs = tabs;
+            this._currentUser.scores = scores;
           }
 
-          resolve(tabs);
+          resolve(scores);
         },
         error: (error: HttpErrorResponse) => {
           reject(error);
@@ -123,27 +123,28 @@ export class CurrentUserService {
     });
   }
 
-  addTab(): Promise<Tab> {
-    const url = `${environment.serverAddress}/api/tab`;
+  addScore(): Promise<Score> {
+    const url = `${environment.serverAddress}/api/score`;
 
-    const emptyTab = new Tab();
+    const emptyScore = new Score();
     const body = {
-      artist: emptyTab.artist,
-      name: emptyTab.name,
-      song: emptyTab.song,
-      guitar: JSON.stringify(emptyTab.guitar),
-      data: JSON.stringify(emptyTab),
-      isPublic: emptyTab.isPublic,
+      name: emptyScore.name,
+      artist: emptyScore.artist,
+      song: emptyScore.song,
+      isPublic: emptyScore.isPublic,
+      tracks: JSON.stringify(emptyScore.tracks),
       userId: this._currentUser?.id,
     };
 
-    return new Promise<Tab>((resolve, reject) => {
-      this.http.post<Tab>(url, body).subscribe({
-        next: (resTab: Tab) => {
-          const tab = Tab.fromObject(resTab);
-          this._currentUser?.tabs?.push(tab);
+    console.log(JSON.parse(JSON.stringify(body)));
 
-          resolve(tab);
+    return new Promise<Score>((resolve, reject) => {
+      this.http.post<Score>(url, body).subscribe({
+        next: (resScore: Score) => {
+          const score = Score.fromObject(resScore);
+          this._currentUser?.scores?.push(score);
+
+          resolve(score);
         },
         error: (error: HttpErrorResponse) => {
           reject(error);
@@ -152,21 +153,21 @@ export class CurrentUserService {
     });
   }
 
-  editTab(tabId: string | number): void {
+  editScore(scoreId: string | number): void {
     throw new Error('Method not implemented.');
   }
 
-  deleteTab(tabId: string | number) {
-    const url = `${environment.serverAddress}/api/tab/${tabId}`;
+  deleteScore(scoreId: string | number) {
+    const url = `${environment.serverAddress}/api/score/${scoreId}`;
 
     return new Promise<void>((resolve, reject) => {
       this.http.delete(url).subscribe({
         next: (next: any) => {
           if (this._currentUser) {
-            const newTabs = this._currentUser?.tabs?.filter(
-              (tab) => tab.id !== tabId
+            const newScores = this._currentUser?.scores?.filter(
+              (score) => score.id !== scoreId
             );
-            this._currentUser.tabs = newTabs;
+            this._currentUser.scores = newScores;
           }
 
           resolve();

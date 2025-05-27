@@ -4,7 +4,7 @@ import { User } from 'src/app/_models/user';
 import { UserService } from 'src/app/_services/user.service';
 import { ConfirmDeleteDialogComponent } from '../dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TabService } from 'src/app/_services/tab.service';
+import { ScoreService } from 'src/app/_services/score.service';
 import { CurrentUserService } from 'src/app/_services/current-user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -23,7 +23,7 @@ export class UserComponent implements OnInit {
     private snackBar: MatSnackBar,
     private currentUserService: CurrentUserService,
     private userService: UserService,
-    private tabService: TabService,
+    private scoreService: ScoreService,
     private dialog: MatDialog
   ) {
     this._canEdit =

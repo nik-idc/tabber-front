@@ -1,3 +1,4 @@
+import { Score } from '@atikincode/tabui';
 import { Tab } from '@atikincode/tabui/dist/models/tab';
 
 export class User {
@@ -5,20 +6,20 @@ export class User {
   public username: string = '';
   public email: string = '';
   public createdAt?: string | Date;
-  public tabs?: Tab[] = undefined;
+  public scores?: Score[] = undefined;
 
   constructor(
     id: number,
     username: string,
     email: string,
     createdAt?: string | Date,
-    tabs?: Tab[]
+    scores?: Score[]
   ) {
     this.id = id;
     this.username = username;
     this.email = email;
     this.createdAt = createdAt;
-    this.tabs = tabs;
+    this.scores = scores;
   }
 
   static fromObject(userObject: any): User {

@@ -20,11 +20,11 @@ export const userResolver: ResolveFn<User | undefined> = async (
     currentUserService.currentUser &&
     userId === currentUserService.currentUser.id
   ) {
-    await currentUserService.getTabs();
+    await currentUserService.getScores();
   }
 
   const user = await userService.getUser(userId);
-  user.tabs = await userService.getUserTabs(userId);
+  user.scores = await userService.getUserScores(userId);
 
   return user;
 };

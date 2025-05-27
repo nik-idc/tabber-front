@@ -1,0 +1,21 @@
+.uploader-input {
+  display: none;
+}
+
+.upload-bottom-text {
+  padding-top: 15px;
+}
+
+.upload-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}

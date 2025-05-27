@@ -1,0 +1,8 @@
+.note-controls,
+.play-controls,
+.rhythm-controls {
+  text-align: center;
+  flex-grow: 1;
+  flex-basis: 0;
+  background-color: var(--controls-background-color);
+}
