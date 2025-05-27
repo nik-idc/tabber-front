@@ -11,7 +11,10 @@ import { CurrentUserService } from './_services/current-user.service';
 export class AppComponent {
   title = 'tabber';
 
-  constructor(private currentUserService: CurrentUserService, private router: Router) {}
+  constructor(
+    private currentUserService: CurrentUserService,
+    private router: Router
+  ) {}
 
   get loggedIn(): boolean {
     return this.currentUserService.loggedIn;
@@ -20,5 +23,11 @@ export class AppComponent {
   onSignOutClick(): void {
     this.currentUserService.signout();
     this.router.navigateByUrl('signin');
+  }
+
+  onProfileClick(): void {
+    this.router.navigateByUrl(
+      `user/${this.currentUserService.currentUser!.id}`
+    );
   }
 }

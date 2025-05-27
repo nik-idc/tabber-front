@@ -1,5 +1,7 @@
 import {
+  AfterViewInit,
   Component,
+  ElementRef,
   EventEmitter,
   HostListener,
   Input,
@@ -7,15 +9,18 @@ import {
   OnInit,
   Sanitizer,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import {
   BeatElement,
   NoteDuration,
   Point,
   Rect,
+  Score,
   SelectedElement,
   TabPlayerSVGAnimator,
   TabWindowDim,
+  DURATION_TO_NAME,
 } from '@atikincode/tabui/dist/index';
 import { TabWindow } from '@atikincode/tabui/dist/index';
 import { Tab } from '@atikincode/tabui/dist/index';
@@ -25,7 +30,7 @@ import { NoteElement } from '@atikincode/tabui/dist/index';
 import { KeyChecker } from 'src/app/_shared/key-checker/key-checker';
 import { FormBuilder } from '@angular/forms';
 import { UserService } from 'src/app/_services/user.service';
-import { TabService } from 'src/app/_services/tab.service';
+import { ScoreService } from 'src/app/_services/score.service';
 import { CurrentUserService } from 'src/app/_services/current-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -44,21 +49,25 @@ import { MatSelectChange } from '@angular/material/select';
   templateUrl: './tab-editor.component.html',
   styleUrls: ['./tab-editor.component.scss'],
 })
-export class TabEditorComponent implements OnInit, OnChanges {
-  @Input() tab: Tab = new Tab();
+export class TabEditorComponent implements OnInit, OnChanges, AfterViewInit {
+  @ViewChild('tabSVG') tabSVG!: ElementRef<SVGElement>;
+  private isSVGFocused: boolean = false;
+
+  @Input() tabIndex: number = 0;
+  public tab = new Tab();
   public newTab: boolean = true;
 
-  private tabLineDim: TabWindowDim = new TabWindowDim(
-    1200,
-    15,
-    45,
-    30,
-    50,
-    this.tab.guitar.stringsCount
-  );
+  private width = 3 * ((window.innerWidth - 50) / 4);
+  // private width = 1200;
+  private noteTextSize = 12;
+  private timeSigTextSize = 45;
+  private tempoTextSize = 30;
+  private durationsHeight = 50;
 
-  public tabWindow: TabWindow = new TabWindow(this.tab, this.tabLineDim);
+  public tabDim: TabWindowDim;
+  public tabWindow: TabWindow;
   public playerAnimator: TabPlayerSVGAnimator | undefined;
+  private restartAnimator: boolean = false;
 
   private eventsTimeEpsilon: number = 250;
   private prevTabKeyPress: { time: number; key: string } | null = null;
@@ -79,28 +88,78 @@ export class TabEditorComponent implements OnInit, OnChanges {
   constructor(
     private userService: UserService,
     private currentUserService: CurrentUserService,
-    private tabService: TabService,
+    private scoreService: ScoreService,
     private snackBar: MatSnackBar,
     private formBuilder: FormBuilder,
     private sanitizer: DomSanitizer
-  ) {}
+  ) {
+    this.tab = this.scoreService.score.tracks[this.tabIndex];
+
+    this.tabDim = new TabWindowDim(
+      this.width,
+      this.noteTextSize,
+      this.timeSigTextSize,
+      this.tempoTextSize,
+      this.durationsHeight,
+      this.tab.guitar.stringsCount
+    );
+
+    this.tabWindow = new TabWindow(
+      this.scoreService.score,
+      this.tab,
+      this.tabDim
+    );
+  }
+
+  ngAfterViewInit(): void {
+    this.tabSVG.nativeElement.addEventListener('focus', () => {
+      this.isSVGFocused = true;
+    });
+
+    this.tabSVG.nativeElement.addEventListener('blur', () => {
+      this.isSVGFocused = false;
+    });
+  }
 
   createTabWindow(): void {
-    this.tab = this.tabService.tab;
-    this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
+    this.tabWindow = new TabWindow(
+      this.scoreService.score,
+      this.tab,
+      this.tabDim
+    );
     this.tabWindow.selectNoteElementUsingIds(0, 0, 0, 0);
 
     console.log(this.tabWindow);
   }
 
   ngOnInit(): void {
+    // this.tab = this.scoreService.score.tracks[this.tabIndex];
     this.createTabWindow();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(`On changes, index = ${this.tabIndex}`);
+
+    this.tab = this.scoreService.score.tracks[this.tabIndex];
+
+    this.tabDim = new TabWindowDim(
+      this.width,
+      this.noteTextSize,
+      this.timeSigTextSize,
+      this.tempoTextSize,
+      this.durationsHeight,
+      this.tab.guitar.stringsCount
+    );
+
     // Create tab window
-    this.tabWindow = new TabWindow(this.tab, this.tabLineDim);
+    this.tabWindow = new TabWindow(
+      this.scoreService.score,
+      this.tab,
+      this.tabDim
+    );
     this.tabWindow.calcTabElement();
+
+    this.restartAnimator = true;
   }
 
   onNoteDurationClick(duration: number): void {
@@ -307,6 +366,10 @@ export class TabEditorComponent implements OnInit, OnChanges {
 
   @HostListener('document:keydown.space', ['$event'])
   spaceEvent(event: KeyboardEvent) {
+    if (!this.isSVGFocused) {
+      return;
+    }
+
     this.onPlayClicked();
   }
 
@@ -498,12 +561,19 @@ export class TabEditorComponent implements OnInit, OnChanges {
     } else {
       this.isPlaying = true;
 
-      if (this.playerAnimator === undefined) {
+      if (this.playerAnimator === undefined || this.restartAnimator) {
         this.setupPlayerAnimator(playerCursor);
+        if (this.restartAnimator) {
+          this.restartAnimator = false;
+        }
       }
 
       this.renderCursor(playerCursor);
       this.tabWindow.startPlayer();
     }
+  }
+
+  public get DURATION_TO_NAME(): { [duration: number]: string } {
+    return DURATION_TO_NAME;
   }
 }

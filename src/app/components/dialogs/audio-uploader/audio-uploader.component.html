@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>Upload audio to transcribe</h2>
+<mat-dialog-content class="upload-inputs">
+  <button mat-raised-button color="primary" (click)="onClick($event)">
+    <mat-icon>attach_file</mat-icon>
+    Open file...
+  </button>
+
+  <input
+    #fileUploader
+    type="file"
+    accept="audio/wav"
+    (input)="onInput($event)"
+    (change)="onFileSelected($event)"
+    class="uploader-input"
+  />
+
+  <div *ngIf="file === undefined" class="upload-bottom-text">
+    No file loaded yet
+    <!-- <h2>No file loaded yet</h2> -->
+  </div>
+  <div *ngIf="file !== undefined" class="upload-bottom-text">
+    File '{{ file.name }}' loaded
+    <!-- <h2>File '{{ file.name }}' loaded</h2> -->
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions class="upload-buttons">
+  <button mat-button [mat-dialog-close]="['Cancel']">Cancel</button>
+  <button
+    mat-button
+    [disabled]="file === undefined"
+    [mat-dialog-close]="['Yes', file]"
+  >
+    Transcribe
+  </button>
+</mat-dialog-actions>

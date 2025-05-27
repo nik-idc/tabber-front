@@ -13,14 +13,18 @@ import { MaterialModule } from './app-material.module';
 import { AppRoutingModule, RoutingComponents } from './app-routing.module';
 import { UserComponent } from './components/user/user.component';
 import { UserDataComponent } from './components/user/user-data/user-data.component';
-import { TabComponent } from './components/tab/tab.component';
+import { ScoreComponent } from './components/score/score.component';
 import { UserService } from './_services/user.service';
 import { TokenInterceptorService } from './_services/token-interceptor.service';
 import { ConfirmDeleteDialogComponent } from './components/dialogs/confirm-delete-dialog/confirm-delete-dialog.component';
 import { InfoComponent } from './components/info/info.component';
-import { TabListComponent } from './components/tab-list/tab-list.component';
-import { TabCardComponent } from './components/tab-list/tab-card/tab-card.component';
-import { TabEditorComponent } from './components/tab/tab-editor/tab-editor.component';
+import { ScoreListComponent } from './components/score-list/score-list.component';
+import { ScoreCardComponent } from './components/score-list/score-card/score-card.component';
+import { TabEditorComponent } from './components/score/tab-editor/tab-editor.component';
+import { TabEditorPanelComponent } from './components/score/tab-editor/tab-editor-panel/tab-editor-panel.component';
+import { TempoEditorComponent } from './components/score/tab-editor/tab-editor-panel/tempo-editor/tempo-editor.component';
+import { TimeSigEditorComponent } from './components/score/tab-editor/tab-editor-panel/time-sig-editor/time-sig-editor.component';
+import { AudioUploaderComponent } from './components/dialogs/audio-uploader/audio-uploader.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @NgModule({
@@ -30,13 +34,17 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     SignUpComponent,
     UserComponent,
     UserDataComponent,
-    TabComponent,
+    ScoreComponent,
     RoutingComponents,
     ConfirmDeleteDialogComponent,
     InfoComponent,
-    TabListComponent,
-    TabCardComponent,
-    TabEditorComponent
+    ScoreListComponent,
+    ScoreCardComponent,
+    TabEditorComponent,
+    TabEditorPanelComponent,
+    TempoEditorComponent,
+    TimeSigEditorComponent,
+    AudioUploaderComponent,
   ],
   imports: [
     BrowserModule,

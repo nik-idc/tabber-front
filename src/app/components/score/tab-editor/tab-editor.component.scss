@@ -1,0 +1,115 @@
+// :host {
+//   --main-tab-color: #b6cae3;
+//   --tab-prepend-color: #9a8bae;
+//   --tab-prepend-opacity: 33%;
+//   --tab-append-color: #9a8bae;
+//   --tab-append-opacity: 33%;
+//   --tab-measure-color: #906c8c;
+//   --tab-measure-opacity: 33%;
+//   --controls-background-color: #906c8c;
+//   --controls-dark-background-color: #7e5e7a;
+// }
+
+:host {
+  --main-tab-color: white;
+  --selection-color: #3e3e3e4b;
+  --controls-background-color: lightcoral;
+  --controls-dark-background-color: indianred;
+}
+
+.main-tab {
+  // width: 95%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--main-tab-color);
+}
+
+.play-controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  text-align: center;
+  background-color: var(--controls-background-color);
+}
+
+.tab-editor {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+
+  .tab-panel {
+    // width: 250px;
+    flex: 1;
+    position: sticky;
+    left: 0;
+    background: inherit;
+    z-index: 5;
+    overflow-y: auto;
+  }
+
+  .tab-view {
+    flex: 3;
+    overflow: auto;
+    width: 95%;
+
+    .tab-scroll-container {
+      // width: 100%;
+      overflow: auto;
+      width: max-content; // Let SVG expand as needed
+      // width: fit-content;
+      min-height: 100%;
+    }
+
+    .tab-svg {
+      display: block;
+      user-select: none;
+      background-color: var(--main-tab-color);
+    }
+  }
+}
+
+.bar-line {
+  stroke: black;
+}
+
+.error-bar-line {
+  stroke: red;
+}
+
+.selected-beat-rect {
+  fill: var(--selection-color);
+  // fill: blue;
+  // fill-opacity: 0.25;
+  pointer-events: none;
+}
+
+.note-select-text-rect {
+  fill: var(--main-tab-color);
+  stroke-opacity: 1;
+  // fill-opacity: 0.25;
+  stroke: lightcoral;
+  rx: 2px;
+}
+
+.note-text-rect {
+  // fill: blue;
+  fill: var(--main-tab-color);
+  stroke-opacity: 0;
+}
+
+.note-select-rect {
+  stroke: none;
+  fill: transparent;
+}
+
+.note-text {
+  text-anchor: middle;
+  alignment-baseline: middle;
+  cursor: default;
+  // stroke: var(--main-tab-color);
+  // stroke-width: 0.5em;
+  fill: black;
+  paint-order: stroke;
+  stroke-linejoin: round;
+}

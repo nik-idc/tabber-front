@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { User } from '../_models/user';
-import { Tab } from '@atikincode/tabui/dist/models/tab';
+import { Score } from '@atikincode/tabui/dist/models/score';
 import { environment } from 'src/environments/environment';
 import { LoggingService } from './logging.service';
 
@@ -32,22 +32,22 @@ export class UserService {
     });
   }
 
-  getUserTabs(userId: string | number): Promise<Tab[]> {
-    const url = `${environment.serverAddress}/api/user/${userId}/tabs`;
+  getUserScores(userId: string | number): Promise<Score[]> {
+    const url = `${environment.serverAddress}/api/user/${userId}/score`;
 
-    return new Promise<Tab[]>((resolve, reject) => {
-      this.http.get<Tab[]>(url).subscribe({
+    return new Promise<Score[]>((resolve, reject) => {
+      this.http.get<Score[]>(url).subscribe({
         next: (res: any) => {
-          const tabs: Tab[] = [];
-          for (const tab of res) {
-            tabs.push(Tab.fromObject(tab));
+          const scores: Score[] = [];
+          for (const score of res) {
+            scores.push(Score.fromObject(score));
           }
 
           if (this._user) {
-            this._user.tabs = tabs;
+            this._user.scores = scores;
           }
 
-          resolve(tabs);
+          resolve(scores);
         },
         error: (error: HttpErrorResponse) => {
           reject(error);
@@ -56,15 +56,15 @@ export class UserService {
     });
   }
 
-  // createNewTab(): Promise<Tab> {
-  //   let tab = new Tab();
+  // createNewScore(): Promise<Score> {
+  //   let score = new Score();
 
-  //   let body = { userId: this._user.id, userTab: tab };
+  //   let body = { userId: this._user.id, userScore: score };
 
   //   return new Promise<any>((resolve, reject) => {
-  //     this.http.post<any>(this.tabsUrl, body).subscribe({
+  //     this.http.post<any>(this.scoresUrl, body).subscribe({
   //       next: (res: any) => {
-  //         this._user.tabs.push(Tab.fromObject(res));
+  //         this._user.scores.push(Score.fromObject(res));
   //         resolve(res);
   //       },
   //       error: (err: any) => {
@@ -74,21 +74,21 @@ export class UserService {
   //   });
   // }
 
-  // updateTab(tab: Tab): Promise<Tab> {
-  //   if (tab.id === undefined) {
+  // updateScore(score: Score): Promise<Score> {
+  //   if (score.id === undefined) {
   //     throw new Error(
-  //       'Tab id is null, need to create it in the database first'
+  //       'Score id is null, need to create it in the dascorease first'
   //     );
   //   }
 
-  //   let body = tab;
+  //   let body = score;
 
-  //   let tabIndex = this._user.tabs.indexOf(tab);
+  //   let scoreIndex = this._user.scores.indexOf(score);
 
-  //   return new Promise<Tab>((resolve, reject) => {
-  //     this.http.put<Tab>(this.tabsUrl, body).subscribe({
-  //       next: (res: Tab) => {
-  //         this._user.tabs[tabIndex] = Tab.fromObject(res);
+  //   return new Promise<Score>((resolve, reject) => {
+  //     this.http.put<Score>(this.scoresUrl, body).subscribe({
+  //       next: (res: Score) => {
+  //         this._user.scores[scoreIndex] = Score.fromObject(res);
   //         resolve(res);
   //       },
   //       error: (err: any) => {
@@ -98,19 +98,19 @@ export class UserService {
   //   });
   // }
 
-  deleteTab(tabId: string | number): Promise<void> {
-    const url = `${environment.serverAddress}/api/tab/${tabId}`;
+  deleteScore(scoreId: string | number): Promise<void> {
+    const url = `${environment.serverAddress}/api/score/${scoreId}`;
 
     return new Promise<void>((resolve, reject) => {
       this.http.delete(url).subscribe({
         next: () => {
           if (this._user) {
-            const tabIndex = this._user.tabs?.findIndex((tab) => {
-              return tab.id === tabId;
+            const scoreIndex = this._user.scores?.findIndex((score) => {
+              return score.id === scoreId;
             });
 
-            if (tabIndex) {
-              this._user.tabs?.splice(tabIndex, 1);
+            if (scoreIndex) {
+              this._user.scores?.splice(scoreIndex, 1);
             }
           }
           resolve();

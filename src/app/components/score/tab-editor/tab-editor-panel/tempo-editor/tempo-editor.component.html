@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Edit bar tempo</h2>
+<mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Input new tempo here</mat-label>
+    <input matInput type="number" min="1" max="999" [(ngModel)]="newTempo" />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button [mat-dialog-close]="['Cancel']">Cancel</button>
+  <button mat-button [mat-dialog-close]="['Yes', newTempo]">Save</button>
+</mat-dialog-actions>

@@ -1,0 +1,288 @@
+<!-- tabindex="0" -->
+<div
+  *ngIf="tabWindow"
+  class="main-tab"
+  (keydown.control.delete)="onTabCtrlDel()"
+  (keydown)="onTabKeyDown($event)"
+>
+  <div class="play-controls">
+    <button mat-button (click)="onPlayClicked()">
+      <mat-icon *ngIf="!isPlaying">play_arrow</mat-icon>
+      <mat-icon *ngIf="isPlaying">pause</mat-icon>
+    </button>
+  </div>
+
+  <div class="tab-editor">
+    <div class="tab-panel">
+      <app-tab-editor-panel
+        [tabIndex]="tabIndex"
+        [tabWindow]="tabWindow"
+      ></app-tab-editor-panel>
+    </div>
+    <!-- 
+          [attr.width]="tabWindow.dim.width"
+          [attr.height]="getTabWindowHeight()"
+          
+          width="100%" height="100%"
+          -->
+
+    <div class="tab-view">
+      <div class="tab-scroll-container">
+        <svg
+          #tabSVG
+          [attr.width]="tabWindow.dim.width"
+          [attr.height]="getTabWindowHeight()"
+          class="tab-svg"
+        >
+          <g
+            *ngFor="
+              let tabLineElement of tabWindow.getTabLineElements();
+              let tabLineElementId = index
+            "
+          >
+            {{ setTabLineElementOffset(tabLineElement) }}
+            <g
+              *ngFor="
+                let barElement of tabLineElement.barElements;
+                let barElementId = index
+              "
+            >
+              {{ setBarElementOffset(barElement) }}
+              <line
+                [attr.x1]="barOffset.x + barElement.barLeftBorderLine[0].x"
+                [attr.y1]="barOffset.y + barElement.barLeftBorderLine[0].y"
+                [attr.x2]="barOffset.x + barElement.barLeftBorderLine[1].x"
+                [attr.y2]="barOffset.y + barElement.barLeftBorderLine[1].y"
+                class="bar-line"
+              />
+
+              <line
+                *ngFor="let line of barElement.staffLines"
+                [attr.x1]="barOffset.x + line[0].x"
+                [attr.y1]="barOffset.y + line[0].y"
+                [attr.x2]="barOffset.x + line[1].x"
+                [attr.y2]="barOffset.y + line[1].y"
+                [ngClass]="{
+                  'bar-line': barElement.durationsFit,
+                  'error-bar-line': !barElement.durationsFit
+                }"
+              />
+
+              <g *ngIf="barElement.showSignature">
+                <text
+                  [attr.x]="barOffset.x + barElement.beatsTextCoords.x"
+                  [attr.y]="barOffset.y + barElement.beatsTextCoords.y"
+                  [attr.font-size]="tabWindow.dim.timeSigTextSize"
+                >
+                  {{ barElement.bar.beatsCount }}
+                </text>
+
+                <text
+                  [attr.x]="barOffset.x + barElement.measureTextCoords.x"
+                  [attr.y]="barOffset.y + barElement.measureTextCoords.y"
+                  [attr.font-size]="tabWindow.dim.timeSigTextSize"
+                >
+                  {{ 1 / barElement.bar.duration }}
+                </text>
+              </g>
+
+              <g *ngIf="barElement.showTempo">
+                <image
+                  [attr.x]="barOffset.x + barElement.tempoImageRect.x"
+                  [attr.y]="barOffset.y + barElement.tempoImageRect.y"
+                  [attr.width]="barElement.tempoImageRect.width"
+                  [attr.height]="barElement.tempoImageRect.height"
+                  href="./assets/img/notes/4.svg"
+                />
+
+                <text
+                  [attr.x]="barOffset.x + barElement.tempoTextCoords.x"
+                  [attr.y]="barOffset.y + barElement.tempoTextCoords.y"
+                  [attr.font-size]="tabWindow.dim.tempoTextSize"
+                  text-anchor="start"
+                >
+                  = {{ barElement.bar.tempo }}
+                </text>
+              </g>
+
+              <g
+                *ngFor="
+                  let beatElement of barElement.beatElements;
+                  let beatElementId = index
+                "
+                (mousedown)="
+                  onBeatMouseDown(tabLineElementId, barElementId, beatElementId)
+                "
+                (mouseenter)="
+                  onBeatMouseEnter(
+                    tabLineElementId,
+                    barElementId,
+                    beatElementId
+                  )
+                "
+                (mouseleave)="
+                  onBeatMouseLeave(
+                    tabLineElementId,
+                    barElementId,
+                    beatElementId
+                  )
+                "
+                (mousemove)="
+                  onBeatMouseMove(
+                    $event,
+                    tabLineElementId,
+                    barElementId,
+                    beatElementId
+                  )
+                "
+                (mouseup)="onBeatMouseUp()"
+              >
+                {{ setBeatElementOffset(beatElement) }}
+                <g
+                  *ngFor="
+                    let effectLabelElement of beatElement.effectLabelElements
+                  "
+                  [attr.transform]="
+                    'translate(' + beatOffset.x + ',' + beatOffset.y + ')'
+                  "
+                >
+                  <g
+                    *ngIf="effectLabelElement.fullHTML !== undefined"
+                    [innerHTML]="sanitizeSVG(effectLabelElement.fullHTML)"
+                  ></g>
+                </g>
+
+                <image
+                  [attr.x]="beatOffset.x + beatElement.durationRect.x"
+                  [attr.y]="beatOffset.y + beatElement.durationRect.y"
+                  [attr.width]="beatElement.durationRect.width"
+                  [attr.height]="beatElement.durationRect.height"
+                  [attr.href]="
+                    '../../../assets/img/notes/' +
+                    DURATION_TO_NAME[beatElement.beat.duration] +
+                    '.svg'
+                  "
+                />
+                {{ setBeatNotesOffset(beatElement.beatNotesElement) }}
+                <g
+                  *ngFor="
+                    let noteElement of beatElement.beatNotesElement
+                      .noteElements;
+                    let noteElementId = index
+                  "
+                  (click)="
+                    onNoteClick(
+                      tabLineElementId,
+                      barElementId,
+                      beatElementId,
+                      noteElementId
+                    )
+                  "
+                >
+                  <g
+                    *ngFor="
+                      let effectElement of noteElement.guitarEffectElements
+                    "
+                  >
+                    <g *ngIf="effectElement.rect !== undefined">
+                      <rect
+                        [attr.x]="beatNotesOffset.x + effectElement.rect.x"
+                        [attr.y]="beatNotesOffset.y + effectElement.rect.y"
+                        [attr.width]="effectElement.rect.width"
+                        [attr.height]="effectElement.rect.height"
+                        fill="white"
+                        stroke-opacity="0"
+                      />
+                    </g>
+
+                    <g *ngIf="effectElement.fullHTML !== undefined">
+                      <g
+                        [attr.transform]="
+                          'translate(' +
+                          beatNotesOffset.x +
+                          ',' +
+                          beatNotesOffset.y +
+                          ')'
+                        "
+                      >
+                        <g
+                          [innerHTML]="sanitizeSVG(effectElement.fullHTML)"
+                        ></g>
+                      </g>
+                    </g>
+                  </g>
+                  />
+
+                  <rect
+                    [attr.x]="beatNotesOffset.x + noteElement.rect.x"
+                    [attr.y]="beatNotesOffset.y + noteElement.rect.y"
+                    [attr.width]="noteElement.rect.width"
+                    [attr.height]="noteElement.rect.height"
+                    class="note-select-rect"
+                  />
+
+                  <g
+                    *ngIf="
+                      noteElement.note.fret !== undefined ||
+                      (tabWindow.getSelectedElement() &&
+                        noteElement.note.uuid ===
+                          tabWindow.getSelectedElement()?.note?.uuid)
+                    "
+                  >
+                    <rect
+                      [attr.x]="beatNotesOffset.x + noteElement.textRect.x"
+                      [attr.y]="beatNotesOffset.y + noteElement.textRect.y"
+                      [attr.width]="noteElement.textRect.width"
+                      [attr.height]="noteElement.textRect.height"
+                      [ngClass]="{
+                        'note-select-text-rect':
+                          tabWindow.getSelectedElement() &&
+                          noteElement.note.uuid ===
+                            tabWindow.getSelectedElement()?.note?.uuid,
+                        'note-text-rect': !(
+                          tabWindow.getSelectedElement() &&
+                          noteElement.note.uuid ===
+                            tabWindow.getSelectedElement()?.note?.uuid
+                        )
+                      }"
+                    />
+
+                    <text
+                      [attr.x]="beatNotesOffset.x + noteElement.textCoords.x"
+                      [attr.y]="beatNotesOffset.y + noteElement.textCoords.y"
+                      [attr.font-size]="noteElement.dim.noteTextSize"
+                      class="note-text"
+                    >
+                      {{ noteElement.note.fret }}
+                    </text>
+                  </g>
+                </g>
+
+                <g *ngIf="beatElement.selected">
+                  <rect
+                    [attr.x]="barOffset.x + beatElement.rect.x"
+                    [attr.y]="barOffset.y + beatElement.rect.y"
+                    [attr.width]="beatElement.rect.width"
+                    [attr.height]="beatElement.rect.height"
+                    class="selected-beat-rect"
+                    fill="blue"
+                    fill-opacity="0.25"
+                  />
+                </g>
+              </g>
+              <line
+                [attr.x1]="barOffset.x + barElement.barRightBorderLine[0].x"
+                [attr.y1]="barOffset.y + barElement.barRightBorderLine[0].y"
+                [attr.x2]="barOffset.x + barElement.barRightBorderLine[1].x"
+                [attr.y2]="barOffset.y + barElement.barRightBorderLine[1].y"
+                class="bar-line"
+              />
+            </g>
+
+            <rect id="playerCursor" stroke="black" fill="purple" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
