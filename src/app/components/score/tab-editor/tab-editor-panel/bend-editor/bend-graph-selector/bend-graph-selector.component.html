@@ -1,0 +1,66 @@
+<div class="bend-selector">
+  <svg
+    id="selector"
+    xmlns="http://www.w3.org/2000/svg"
+    [attr.width]="pitchSelectWidth"
+    [attr.height]="pitchSelectHeight + svgYOffset * 2"
+    fill="none"
+  >
+    <line
+      [attr.x1]="lineXOffset"
+      [attr.y1]="0 + svgYOffset"
+      [attr.x2]="lineXOffset"
+      [attr.y2]="pitchSelectHeight + svgYOffset"
+      class="bend-line"
+    />
+    <line
+      [attr.x1]="pitchSelectWidth"
+      [attr.y1]="0 + svgYOffset"
+      [attr.x2]="pitchSelectWidth"
+      [attr.y2]="pitchSelectHeight + svgYOffset"
+      class="bend-line"
+    />
+
+    <g>
+      <text
+        *ngFor="let pitchText of pitchesText; let pitchIndex = index"
+        [attr.x]="0"
+        [attr.y]="pitchesY[pitchIndex] + 4"
+        class="pitch-text"
+      >
+        {{ pitchText }}
+      </text>
+      <line
+        *ngFor="let pitch of pitches; let pitchIndex = index"
+        [attr.x1]="lineXOffset"
+        [attr.y1]="pitchesY[pitchIndex]"
+        [attr.x2]="pitchSelectWidth"
+        [attr.y2]="pitchesY[pitchIndex]"
+        [class]="{
+                'bend-line': pitchIndex % 2 === 0,
+                'bend-dotted-line': pitchIndex % 2 !== 0,
+              }"
+      />
+    </g>
+
+    <path [attr.d]="bendCurve" class="bend-curve" />
+    <circle
+      [attr.r]="7"
+      [attr.cx]="selectorMinX"
+      [attr.cy]="selectorMaxY"
+      class="selector-circle"
+    />
+    <circle
+      [attr.r]="selectorRadius"
+      [attr.cx]="selectorX"
+      [attr.cy]="selectorY"
+      (mousedown)="onSelectorMouseDown($event)"
+      (mouseenter)="onSelectorMouseEnter($event)"
+      (mouseleave)="onSelectorMouseLeave($event)"
+      [ngClass]="{
+        'selector-circle': selectorRadius === 7,
+        'selector-circle-hover': selectorRadius !== 7 || selectorMoving,
+      }"
+    />
+  </svg>
+</div>

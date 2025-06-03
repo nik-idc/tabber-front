@@ -1,0 +1,62 @@
+.bend-editor-container {
+  width: 600px;
+  height: 450px;
+
+  .bend-editor {
+    display: flex;
+    gap: 10px;
+
+    .bend-types {
+      flex: 1;
+
+      mat-list-item {
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.128); // subtle darkening on hover
+          cursor: pointer;
+        }
+      }
+
+      .selected {
+        background-color: rgba(0, 0, 0, 0.128);
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.256); // subtle darkening on hover
+          cursor: pointer;
+        }
+      }
+    }
+
+    .bend-selector {
+      flex: 2;
+
+      .pitch-text {
+        font-size: 12px;
+        fill: black;
+      }
+
+      .bend-line {
+        stroke: black;
+      }
+
+      .bend-dotted-line {
+        stroke: black;
+        stroke-dasharray: 2, 2;
+      }
+
+      .selector-circle {
+        fill: gray;
+      }
+
+      // Clearly this should be done via ':hover" but I could not get it working :(
+      .selector-circle-hover {
+        fill: lightblue;
+        cursor: pointer;
+      }
+
+      .bend-curve {
+        fill: transparent;
+        stroke: black;
+      }
+    }
+  }
+}
