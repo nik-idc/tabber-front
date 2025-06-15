@@ -22,7 +22,7 @@ export class UserService {
     return new Promise<User>((resolve, reject) => {
       this.http.get<User>(url).subscribe({
         next: (res: User) => {
-          this._user = User.fromObject(res);
+          this._user = User.fromJSON(res);
           resolve(res);
         },
         error: (error: HttpErrorResponse) => {
@@ -40,7 +40,7 @@ export class UserService {
         next: (res: any) => {
           const scores: Score[] = [];
           for (const score of res) {
-            scores.push(Score.fromObject(score));
+            scores.push(Score.fromJSON(score));
           }
 
           if (this._user) {
@@ -64,7 +64,7 @@ export class UserService {
   //   return new Promise<any>((resolve, reject) => {
   //     this.http.post<any>(this.scoresUrl, body).subscribe({
   //       next: (res: any) => {
-  //         this._user.scores.push(Score.fromObject(res));
+  //         this._user.scores.push(Score.fromJSON(res));
   //         resolve(res);
   //       },
   //       error: (err: any) => {
@@ -88,7 +88,7 @@ export class UserService {
   //   return new Promise<Score>((resolve, reject) => {
   //     this.http.put<Score>(this.scoresUrl, body).subscribe({
   //       next: (res: Score) => {
-  //         this._user.scores[scoreIndex] = Score.fromObject(res);
+  //         this._user.scores[scoreIndex] = Score.fromJSON(res);
   //         resolve(res);
   //       },
   //       error: (err: any) => {
