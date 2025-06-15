@@ -22,7 +22,7 @@ export class User {
     this.scores = scores;
   }
 
-  static fromObject(userObject: any): User {
+  static fromJSON(userObject: any): User {
     return new User(
       userObject.id,
       userObject.username,
@@ -33,6 +33,6 @@ export class User {
 
   static fromString(userString: string): User {
     const userObject = JSON.parse(userString);
-    return User.fromObject(userObject);
+    return User.fromJSON(userObject);
   }
 }
