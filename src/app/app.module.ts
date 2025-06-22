@@ -25,6 +25,11 @@ import { TabEditorPanelComponent } from './components/score/tab-editor/tab-edito
 import { TempoEditorComponent } from './components/score/tab-editor/tab-editor-panel/tempo-editor/tempo-editor.component';
 import { TimeSigEditorComponent } from './components/score/tab-editor/tab-editor-panel/time-sig-editor/time-sig-editor.component';
 import { AudioUploaderComponent } from './components/dialogs/audio-uploader/audio-uploader.component';
+import { BendEditorComponent } from './components/score/tab-editor/tab-editor-panel/bend-editor/bend-editor.component';
+import { BendGraphSelectorComponent } from './components/score/tab-editor/tab-editor-panel/bend-editor/bend-graph-selector/bend-graph-selector.component';
+import { BendReleaseGraphSelectorComponent } from './components/score/tab-editor/tab-editor-panel/bend-editor/bend-release-graph-selector/bend-release-graph-selector.component';
+import { PrebendGraphSelectorComponent } from './components/score/tab-editor/tab-editor-panel/bend-editor/prebend-graph-selector/prebend-graph-selector.component';
+import { PrebendReleaseGraphSelectorComponent } from './components/score/tab-editor/tab-editor-panel/bend-editor/prebend-release-graph-selector/prebend-release-graph-selector.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @NgModule({
@@ -45,6 +50,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     TempoEditorComponent,
     TimeSigEditorComponent,
     AudioUploaderComponent,
+    BendEditorComponent,
+    BendGraphSelectorComponent,
+    BendReleaseGraphSelectorComponent,
+    PrebendGraphSelectorComponent,
+    PrebendReleaseGraphSelectorComponent
   ],
   imports: [
     BrowserModule,

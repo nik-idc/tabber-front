@@ -1,0 +1,58 @@
+<div class="bend-editor-container">
+  <h2 mat-dialog-title>Apply bend</h2>
+  <mat-dialog-content>
+    <div class="bend-editor">
+      <div class="bend-types">
+        <ng-container *ngTemplateOutlet="bendTypeList"></ng-container>
+      </div>
+      <div class="bend-selector">
+        <ng-container *ngTemplateOutlet="graphSelector"></ng-container>
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="['Remove', effect]">Remove</button>
+    <button mat-button [mat-dialog-close]="['Cancel']">Cancel</button>
+    <button
+      mat-button
+      [mat-dialog-close]="['Save', effect]"
+      (click)="onSaveClicked()"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</div>
+
+<ng-template #bendTypeList>
+  <mat-list>
+    <mat-list-item
+      *ngFor="let bendType of bendTypesNames; let typeIndex = index"
+      (click)="onBendTypeClicked(typeIndex)"
+      [ngClass]="{
+        'selected': selectedType === bendTypes[typeIndex],
+      }"
+    >
+      {{ bendType }}
+    </mat-list-item>
+  </mat-list>
+</ng-template>
+
+<ng-template #graphSelector>
+  <app-bend-graph-selector
+    *ngIf="selectedType === GuitarEffectType.Bend"
+    (bendChanged)="onBendChanged($event)"
+    [onOpenEffect]="effect"
+  ></app-bend-graph-selector>
+  <app-bend-release-graph-selector
+    *ngIf="selectedType === GuitarEffectType.BendAndRelease"
+    (bendChanged)="onBendChanged($event)"
+  ></app-bend-release-graph-selector>
+  <app-prebend-graph-selector
+    *ngIf="selectedType === GuitarEffectType.Prebend"
+    (bendChanged)="onBendChanged($event)"
+  ></app-prebend-graph-selector>
+  <app-prebend-release-graph-selector
+    *ngIf="selectedType === GuitarEffectType.PrebendAndRelease"
+    (bendChanged)="onBendChanged($event)"
+  ></app-prebend-release-graph-selector>
+</ng-template>

@@ -5,10 +5,14 @@ import {
   DURATION_TO_NAME,
   NoteDuration,
   TabWindow,
+  GuitarEffectType,
+  GuitarEffect,
 } from '@atikincode/tabui/dist/index';
 import { ScoreService } from 'src/app/_services/score.service';
 import { TempoEditorComponent } from './tempo-editor/tempo-editor.component';
 import { TimeSigEditorComponent } from './time-sig-editor/time-sig-editor.component';
+import { GuitarEffectOptions } from '@atikincode/tabui/dist/models/guitar-effect/guitar-effect-options';
+import { BendEditorComponent } from './bend-editor/bend-editor.component';
 
 @Component({
   selector: 'app-tab-editor-panel',
@@ -138,7 +142,119 @@ export class TabEditorPanelComponent implements OnInit {
     this.tabWindow.changeSelectedBarTempo(Number(target.value));
   }
 
+  private applyOrRemoveEffect(
+    effectType: GuitarEffectType,
+    options?: GuitarEffectOptions
+  ): void {
+    const selected = this.tabWindow.getSelectedElement();
+    if (selected === undefined) {
+      return;
+    }
+
+    const effectIndex = selected.note.effects.findIndex((e) => {
+      return e.effectType === effectType;
+    });
+
+    if (effectIndex === -1) {
+      this.tabWindow.applyEffectSingle(effectType, options);
+    } else {
+      this.tabWindow.removeEffectSingle(effectType, options);
+    }
+  }
+
+  private removeEffect(type: GuitarEffectType): void {
+    const selected = this.tabWindow.getSelectedElement();
+    if (selected === undefined) {
+      throw Error("Can't remove effect since selected element undefined");
+    }
+
+    const curEffect = selected.note.effects.find((e) => {
+      return e.effectType === type;
+    });
+    if (curEffect === undefined) {
+      throw Error(
+        `Can't remove effect since no effect of type ${type} present`
+      );
+    }
+
+    this.tabWindow.removeEffectSingle(type, curEffect.options);
+  }
+
+  private updateEffect(updatedEffect: GuitarEffect): void {
+    const selected = this.tabWindow.getSelectedElement();
+    if (selected === undefined) {
+      throw Error("Can't remove effect since selected element undefined");
+    }
+
+    const curEffect = selected.note.effects.find((e) => {
+      return e.effectType === updatedEffect.effectType;
+    });
+    if (curEffect !== undefined) {
+      this.tabWindow.removeEffectSingle(
+        curEffect.effectType,
+        curEffect.options
+      );
+    }
+
+    this.tabWindow.applyEffectSingle(
+      updatedEffect.effectType,
+      updatedEffect.options
+    );
+  }
+
+  onEffectClicked(effectType: GuitarEffectType): void {
+    const bends = [
+      GuitarEffectType.Bend,
+      GuitarEffectType.BendAndRelease,
+      GuitarEffectType.Prebend,
+      GuitarEffectType.PrebendAndRelease,
+    ];
+
+    if (!bends.includes(effectType)) {
+      this.applyOrRemoveEffect(effectType);
+      return;
+    }
+
+    const selected = this.tabWindow.getSelectedElement();
+    const onOpenEffect = selected?.note.effects.find((e) => {
+      return bends.includes(e.effectType);
+    });
+    const dialogRef = this.dialog.open(BendEditorComponent, {
+      data: onOpenEffect,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(result);
+
+      if (result[0] === 'Cancel') {
+        return;
+      }
+
+      const effect = result[1] as GuitarEffect;
+      switch (result[0]) {
+        case 'Cancel':
+          return;
+        case 'Remove':
+          this.removeEffect(effect.effectType);
+          break;
+        case 'Save':
+          this.updateEffect(effect);
+          break;
+        default:
+          break;
+      }
+
+      const bendType = result[1] as GuitarEffectType;
+      const options = result[2] as GuitarEffectOptions;
+      this.applyOrRemoveEffect(bendType, options);
+    });
+  }
+
   public get DURATION_TO_NAME(): { [duration: number]: string } {
     return DURATION_TO_NAME;
+  }
+
+  public get GuitarEffectType(): typeof GuitarEffectType {
+    return GuitarEffectType;
   }
 }
