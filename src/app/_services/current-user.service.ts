@@ -46,7 +46,7 @@ export class CurrentUserService {
     return new Promise<User>((resolve, reject) => {
       this.http.put<any>(url, body).subscribe({
         next: (res: any) => {
-          this._currentUser = User.fromObject(res.user);
+          this._currentUser = User.fromJSON(res.user);
           this.saveCurrentUser(res.token);
           resolve(this._currentUser);
         },
@@ -64,7 +64,7 @@ export class CurrentUserService {
     return new Promise<User>((resolve, reject) => {
       this.http.post<any>(url, body).subscribe({
         next: (res: any) => {
-          this._currentUser = User.fromObject(res.user);
+          this._currentUser = User.fromJSON(res.user);
           this.saveCurrentUser(res.token);
           resolve(this._currentUser);
         },
@@ -82,7 +82,7 @@ export class CurrentUserService {
     return new Promise<User>((resolve, reject) => {
       this.http.post<any>(url, body).subscribe({
         next: (res: any) => {
-          this._currentUser = User.fromObject(res.user);
+          this._currentUser = User.fromJSON(res.user);
           this.saveCurrentUser(res.token);
           resolve(this._currentUser);
         },
@@ -107,7 +107,7 @@ export class CurrentUserService {
           const scores = [];
           for (const score of resScores) {
             console.log(score);
-            scores.push(Score.fromObject(score));
+            scores.push(Score.fromJSON(score));
           }
 
           if (this._currentUser) {
@@ -141,7 +141,7 @@ export class CurrentUserService {
     return new Promise<Score>((resolve, reject) => {
       this.http.post<Score>(url, body).subscribe({
         next: (resScore: Score) => {
-          const score = Score.fromObject(resScore);
+          const score = Score.fromJSON(resScore);
           this._currentUser?.scores?.push(score);
 
           resolve(score);

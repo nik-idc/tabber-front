@@ -83,7 +83,7 @@ export class ScoreListComponent implements OnInit {
       } else {
           this.transcriptionDone = true;
 
-          this.scores?.push(Score.fromObject(res));
+          this.scores?.push(Score.fromJSON(res));
 
           this.currentTranscriptionData = undefined;
 

@@ -26,7 +26,7 @@ export class ScoreService {
     return new Promise<Score>((resolve, reject) => {
       this.http.get<Score>(url).subscribe({
         next: (res: any) => {
-          this._score = Score.fromObject(res);
+          this._score = Score.fromJSON(res);
           resolve(res);
         },
         error: (err: HttpErrorResponse) => {
